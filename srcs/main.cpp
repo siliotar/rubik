@@ -1,8 +1,8 @@
-#include "Cube.hpp"
+#include "Cube3.hpp"
 
 int	main()
 {
-	Cube	c;
+	Cube3	c;
 	std::string	tmp;
 
 	c.print();

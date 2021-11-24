@@ -10,7 +10,13 @@ INCLUDEDIR = include/
 
 FLAGS = -Wall -Werror -Wextra -std=c++98
 
-SOURCEFILES =	main.cpp Cube.cpp Shape.cpp
+SOURCEFILES =	main.cpp \
+				utils.cpp \
+				Cube.cpp \
+				Shape.cpp \
+				Cube3.cpp \
+				vec3.cpp \
+				mat3.cpp
 
 SOURCE = $(addprefix $(SRCDIR), $(SOURCEFILES))
 

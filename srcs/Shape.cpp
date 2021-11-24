@@ -1,13 +1,14 @@
 #include "Shape.hpp"
 
-Shape::Shape(Color up, Color left, Color front, Color right, Color back, Color down) :
-_up(up),
-_left(left),
-_front(front),
-_right(right),
-_back(back),
-_down(down)
-{}
+Shape::Shape(float x, float y, float z, unsigned int size) : _x(x), _y(y), _z(z), _size(size)
+{
+	_up = y + 0.5f >= (float)size / 2 ? White : Black;
+	_left = x - 1.5f <= -(float)size / 2 ? Orange : Black;
+	_front = z - 1.5f <= -(float)size / 2 ? Green : Black;
+	_right = x + 0.5f >= (float)size / 2 ? Red : Black;
+	_back = z + 0.5f >= (float)size / 2 ? Blue : Black;
+	_down = y - 1.5f <= -(float)size / 2 ? Yellow : Black;
+}
 
 Shape::~Shape()
 {}

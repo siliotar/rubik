@@ -5,6 +5,10 @@
 class Shape
 {
 	protected:
+		float			_x;
+		float			_y;
+		float			_z;
+		unsigned int	_size;
 	public:
 		Color	_up;
 		Color	_left;
@@ -12,7 +16,7 @@ class Shape
 		Color	_right;
 		Color	_back;
 		Color	_down;
-		Shape(Color up, Color left, Color front, Color right, Color back, Color down);
+		Shape(float x, float y, float z, unsigned int size);
 		virtual ~Shape();
 		void	R();
 		void	L();

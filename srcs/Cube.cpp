@@ -1,148 +1,114 @@
 #include "Cube.hpp"
 
-Cube::Cube()
+Cube::Cube(int size) : _size(size)
 {
-	for (size_t x = 0; x < 3; ++x)
-	{
-		for (size_t y = 0; y < 3; ++y)
-		{
-			for (size_t z = 0; z < 3; ++z)
-			{
-				_shapes[x][y][z] = new Shape(y == 2 ? White : Black,
-											x == 0 ? Orange : Black,
-											z == 0 ? Green : Black,
-											x == 2 ? Red : Black,
-											z == 2 ? Blue : Black,
-											y == 0 ? Yellow : Black);
-			}
-		}
-	}
+	if (size < 1)
+		throw SizeTooLow();
+	if (size > 100)
+		throw SizeTooHigh();
+	_shapes = new Shape *[_size * _size * _size];
+	size_t	idx = 0;
+	float	fsize = _size;
+	for (float z = fsize / 2; z > -fsize / 2; --z)
+		for (float y = -fsize / 2; y < fsize / 2; ++y)
+			for (float x = -fsize / 2; x < fsize / 2; ++x)
+				_shapes[idx++] = new Shape(x + 0.5f, y + 0.5f, z + 0.5f, _size);
 }
 
-Cube::~Cube()
-{}
+Cube::~Cube() { delete[] _shapes; }
 
-static void	rotate(Shape *&a, Shape *&b, Shape *&c, Shape *&d, Rotation rot)
+void	Cube::rotateFace(int x, int y, int z, mat3 rotmat, Rotation rot)
 {
-	Shape *tmp = a;
-	a = b;
-	b = c;
-	c = d;
-	d = tmp;
-	switch (rot)
-	{
-	case Rrot:
-		a->R();
-		b->R();
-		c->R();
-		d->R();
-		break;
-	case Lrot:
-		a->L();
-		b->L();
-		c->L();
-		d->L();
-		break;
-	case Frot:
-		a->F();
-		b->F();
-		c->F();
-		d->F();
-		break;
-	case Brot:
-		a->B();
-		b->B();
-		c->B();
-		d->B();
-		break;
-	case Rr:
-		a->Rr();
-		b->Rr();
-		c->Rr();
-		d->Rr();
-		break;
-	case Lr:
-		a->Lr();
-		b->Lr();
-		c->Lr();
-		d->Lr();
-		break;
-	default:
-		break;
-	}
+	Shape	*res[_size * _size * _size];
+	float	fsize = _size;
+	for (int tz = 0; tz < _size; ++tz)
+		for (int ty = 0; ty < _size; ++ty)
+			for (int tx = 0; tx < _size; ++tx)
+				if (tx == x || ty == y || tz == z)
+				{
+					vec3	newPos = vec3((float)tx - fsize / 2 + 0.5f, (float)ty - fsize / 2 + 0.5f, (float)tz - fsize / 2 + 0.5f) * rotmat;
+					res[tx + ty * _size + tz * _size * _size] = \
+					_shapes[(int)(newPos.x + fsize / 2 - 0.5f) + (int)(newPos.y + fsize / 2 - 0.5f) * _size + (int)(newPos.z + fsize / 2 - 0.5f) * _size * _size];
+				}
+	for (int tz = 0; tz < _size; ++tz)
+		for (int ty = 0; ty < _size; ++ty)
+			for (int tx = 0; tx < _size; ++tx)
+				if (tx == x || ty == y || tz == z)
+				{
+					_shapes[tx + ty * _size + tz * _size * _size] = res[tx + ty * _size + tz * _size * _size];
+					switch (rot)
+					{
+						case Rrot:
+							_shapes[tx + ty * _size + tz * _size * _size]->R();
+							break;
+						case Lrot:
+							_shapes[tx + ty * _size + tz * _size * _size]->L();
+							break;
+						case Frot:
+							_shapes[tx + ty * _size + tz * _size * _size]->F();
+							break;
+						case Brot:
+							_shapes[tx + ty * _size + tz * _size * _size]->B();
+							break;
+						case Rr:
+							_shapes[tx + ty * _size + tz * _size * _size]->Rr();
+							break;
+						case Lr:
+							_shapes[tx + ty * _size + tz * _size * _size]->Lr();
+							break;
+						default:
+							break;
+					}
+				}
 }
-
-void	Cube::F()
-{
-	rotate(_shapes[0][2][0], _shapes[0][0][0], _shapes[2][0][0], _shapes[2][2][0], Rrot);
-	rotate(_shapes[0][1][0], _shapes[1][0][0], _shapes[2][1][0], _shapes[1][2][0], Rrot);
-}
-
-void	Cube::rF() { F(); F(); F(); }
-
-void	Cube::R()
-{
-	rotate(_shapes[2][0][0], _shapes[2][0][2], _shapes[2][2][2], _shapes[2][2][0], Frot);
-	rotate(_shapes[2][1][0], _shapes[2][0][1], _shapes[2][1][2], _shapes[2][2][1], Frot);
-}
-
-void	Cube::rR() { R(); R(); R(); }
-
-void	Cube::U()
-{
-	rotate(_shapes[0][2][0], _shapes[2][2][0], _shapes[2][2][2], _shapes[0][2][2], Rr);
-	rotate(_shapes[1][2][0], _shapes[2][2][1], _shapes[1][2][2], _shapes[0][2][1], Rr);
-}
-
-void	Cube::rU() { U(); U(); U(); }
-
-void	Cube::B()
-{
-	rotate(_shapes[0][0][2], _shapes[0][2][2], _shapes[2][2][2], _shapes[2][0][2], Lrot);
-	rotate(_shapes[0][1][2], _shapes[1][2][2], _shapes[2][1][2], _shapes[1][0][2], Lrot);
-}
-
-void	Cube::rB() { B(); B(); B(); }
-
-void	Cube::L()
-{
-	rotate(_shapes[0][0][0], _shapes[0][2][0], _shapes[0][2][2], _shapes[0][0][2], Brot);
-	rotate(_shapes[0][0][1], _shapes[0][1][0], _shapes[0][2][1], _shapes[0][1][2], Brot);
-}
-
-void	Cube::rL() { L(); L(); L(); }
-
-void	Cube::D()
-{
-	rotate(_shapes[0][0][0], _shapes[0][0][2], _shapes[2][0][2], _shapes[2][0][0], Lr);
-	rotate(_shapes[1][0][0], _shapes[0][0][1], _shapes[1][0][2], _shapes[2][0][1], Lr);
-}
-
-void	Cube::rD() { D(); D(); D(); }
-
 
 void	Cube::print()
 {
-	std::cout << "\t\t\t" << _shapes[0][2][2]->_up << "\t" << _shapes[1][2][2]->_up << "\t" << _shapes[2][2][2]->_up << "\t" << std::endl;
-	std::cout << "\t\t\t" << _shapes[0][2][1]->_up << "\t" << _shapes[1][2][1]->_up << "\t" << _shapes[2][2][1]->_up << "\t" << std::endl;
-	std::cout << "\t\t\t" << _shapes[0][2][0]->_up << "\t" << _shapes[1][2][0]->_up << "\t" << _shapes[2][2][0]->_up << "\t" << std::endl;
+	for (int z = 0; z < _size; ++z)
+	{
+		for (int i = 0; i < _size; ++i)
+			std::cout << "\t";
+		for (int x = 0; x < _size; ++x)
+			std::cout << _shapes[x + _size * (_size - 1) + z * _size * _size]->_up << "\t";
+		std::cout << std::endl;
+	}
 
-	std::cout << _shapes[0][2][2]->_left << "\t" << _shapes[0][2][1]->_left << "\t" << _shapes[0][2][0]->_left << "\t";
-	std::cout << _shapes[0][2][0]->_front << "\t" << _shapes[1][2][0]->_front << "\t" << _shapes[2][2][0]->_front << "\t";
-	std::cout << _shapes[2][2][0]->_right << "\t" << _shapes[2][2][1]->_right << "\t" << _shapes[2][2][2]->_right << "\t";
-	std::cout << _shapes[2][2][2]->_back << "\t" << _shapes[1][2][2]->_back << "\t" << _shapes[0][2][2]->_back << "\t" << std::endl;
-
-	std::cout << _shapes[0][1][2]->_left << "\t" << _shapes[0][1][1]->_left << "\t" << _shapes[0][1][0]->_left << "\t";
-	std::cout << _shapes[0][1][0]->_front << "\t" << _shapes[1][1][0]->_front << "\t" << _shapes[2][1][0]->_front << "\t";
-	std::cout << _shapes[2][1][0]->_right << "\t" << _shapes[2][1][1]->_right << "\t" << _shapes[2][1][2]->_right << "\t";
-	std::cout << _shapes[2][1][2]->_back << "\t" << _shapes[1][1][2]->_back << "\t" << _shapes[0][1][2]->_back << "\t" << std::endl;
-
-	std::cout << _shapes[0][0][2]->_left << "\t" << _shapes[0][0][1]->_left << "\t" << _shapes[0][0][0]->_left << "\t";
-	std::cout << _shapes[0][0][0]->_front << "\t" << _shapes[1][0][0]->_front << "\t" << _shapes[2][0][0]->_front << "\t";
-	std::cout << _shapes[2][0][0]->_right << "\t" << _shapes[2][0][1]->_right << "\t" << _shapes[2][0][2]->_right << "\t";
-	std::cout << _shapes[2][0][2]->_back << "\t" << _shapes[1][0][2]->_back << "\t" << _shapes[0][0][2]->_back << "\t" << std::endl;
-
-	std::cout << "\t\t\t" << _shapes[0][0][0]->_down << "\t" << _shapes[1][0][0]->_down << "\t" << _shapes[2][0][0]->_down << "\t" << std::endl;
-	std::cout << "\t\t\t" << _shapes[0][0][1]->_down << "\t" << _shapes[1][0][1]->_down << "\t" << _shapes[2][0][1]->_down << "\t" << std::endl;
-	std::cout << "\t\t\t" << _shapes[0][0][2]->_down << "\t" << _shapes[1][0][2]->_down << "\t" << _shapes[2][0][2]->_down << "\t" << std::endl;
+	for (int y = _size - 1; y >= 0; --y)
+	{
+		int	z = 0;
+		int	x = 0;
+		for (; z < _size; ++z)
+			std::cout << _shapes[x + y * _size + z * _size * _size]->_left << "\t";
+		--z;
+		for (; x < _size; ++x)
+			std::cout << _shapes[x + y * _size + z * _size * _size]->_front << "\t";
+		--x;
+		for (; z >= 0; --z)
+			std::cout << _shapes[x + y * _size + z * _size * _size]->_right << "\t";
+		++z;
+		for (; x >= 0; --x)
+			std::cout << _shapes[x + y * _size + z * _size * _size]->_back << "\t";
+		std::cout << std::endl;
+	}
+	
+	for (int z = _size - 1; z >= 0; --z)
+	{
+		for (int i = 0; i < _size; ++i)
+			std::cout << "\t";
+		for (int x = 0; x < _size; ++x)
+			std::cout << _shapes[x + z * _size * _size]->_down << "\t";
+		std::cout << std::endl;
+	}
 }
+
+Cube::SizeTooHigh::SizeTooHigh() {}
+
+const char* Cube::SizeTooHigh::what() const throw () { return "Size too high"; }
+
+Cube::SizeTooHigh::~SizeTooHigh() throw () {}
+
+Cube::SizeTooLow::SizeTooLow() {}
+
+const char* Cube::SizeTooLow::what() const throw () { return "Size too low"; }
+
+Cube::SizeTooLow::~SizeTooLow() throw () {}
