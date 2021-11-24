@@ -40,3 +40,14 @@ void	Shape::B()
 {
 	rotate(_up, _back, _down, _front);
 }
+
+void	Shape::Lr()
+{
+	rotate(_back, _right, _front, _left);
+}
+
+void	Shape::Rr()
+{
+	rotate(_back, _left, _front, _right);
+}
+

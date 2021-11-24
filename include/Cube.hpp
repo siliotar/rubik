@@ -1,8 +1,18 @@
 #pragma once
 
-#include <stddef.h>
+#include <iostream>
 #include "Color.hpp"
 #include "Shape.hpp"
+
+enum Rotation
+{
+	Rrot,
+	Lrot,
+	Frot,
+	Brot,
+	Rr,
+	Lr
+};
 
 class Cube
 {
@@ -14,5 +24,16 @@ class Cube
 		Cube();
 		virtual ~Cube();
 		void	F();
+		void	rF();
+		void	R();
+		void	rR();
+		void	U();
+		void	rU();
+		void	B();
+		void	rB();
+		void	L();
+		void	rL();
+		void	D();
+		void	rD();
 		void	print();
 };
