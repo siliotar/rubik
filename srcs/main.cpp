@@ -6,6 +6,9 @@ int	main()
 	std::string	tmp;
 
 	c.print();
+	c.shuffle(3);
+	std::cout << std::endl;
+	c.print();
 	while (1)
 	{
 		std::cin >> tmp;

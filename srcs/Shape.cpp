@@ -1,13 +1,13 @@
 #include "Shape.hpp"
-
-Shape::Shape(float x, float y, float z, unsigned int size) : _x(x), _y(y), _z(z), _size(size)
+#include <iostream>
+Shape::Shape(int x, int y, int z, int size)
 {
-	_up = y + 0.5f >= (float)size / 2 ? White : Black;
-	_left = x - 1.5f <= -(float)size / 2 ? Orange : Black;
-	_front = z - 1.5f <= -(float)size / 2 ? Green : Black;
-	_right = x + 0.5f >= (float)size / 2 ? Red : Black;
-	_back = z + 0.5f >= (float)size / 2 ? Blue : Black;
-	_down = y - 1.5f <= -(float)size / 2 ? Yellow : Black;
+	_up = y == size - 1 ? White : Black;
+	_left = x == 0 ? Orange : Black;
+	_front = z == size - 1 ? Green : Black;
+	_right = x == size - 1 ? Red : Black;
+	_back = z == 0 ? Blue : Black;
+	_down = y == 0 ? Yellow : Black;
 }
 
 Shape::~Shape()

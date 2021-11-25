@@ -2,20 +2,23 @@
 
 Cube::Cube(int size) : _size(size)
 {
-	if (size < 1)
+	if (size < 2)
 		throw SizeTooLow();
 	if (size > 100)
 		throw SizeTooHigh();
 	_shapes = new Shape *[_size * _size * _size];
-	size_t	idx = 0;
-	float	fsize = _size;
-	for (float z = fsize / 2; z > -fsize / 2; --z)
-		for (float y = -fsize / 2; y < fsize / 2; ++y)
-			for (float x = -fsize / 2; x < fsize / 2; ++x)
-				_shapes[idx++] = new Shape(x + 0.5f, y + 0.5f, z + 0.5f, _size);
+	for (int z = 0; z < _size; ++z)
+		for (int y = 0; y < _size; ++y)
+			for (int x = 0; x < _size; ++x)
+				_shapes[x + y * _size + z * _size * _size] = new Shape(x, y, z, _size);
 }
 
-Cube::~Cube() { delete[] _shapes; }
+Cube::~Cube()
+{
+	for (int i = 0; i < _size * _size * _size; ++i)
+		delete _shapes[i];
+	delete[] _shapes;
+}
 
 void	Cube::rotateFace(int x, int y, int z, mat3 rotmat, Rotation rot)
 {
@@ -28,7 +31,7 @@ void	Cube::rotateFace(int x, int y, int z, mat3 rotmat, Rotation rot)
 				{
 					vec3	newPos = vec3((float)tx - fsize / 2 + 0.5f, (float)ty - fsize / 2 + 0.5f, (float)tz - fsize / 2 + 0.5f) * rotmat;
 					res[tx + ty * _size + tz * _size * _size] = \
-					_shapes[(int)(newPos.x + fsize / 2 - 0.5f) + (int)(newPos.y + fsize / 2 - 0.5f) * _size + (int)(newPos.z + fsize / 2 - 0.5f) * _size * _size];
+					_shapes[(int)roundf(newPos.x + fsize / 2 - 0.5f) + (int)roundf(newPos.y + fsize / 2 - 0.5f) * _size + (int)roundf(newPos.z + fsize / 2 - 0.5f) * _size * _size];
 				}
 	for (int tz = 0; tz < _size; ++tz)
 		for (int ty = 0; ty < _size; ++ty)
@@ -112,3 +115,27 @@ Cube::SizeTooLow::SizeTooLow() {}
 const char* Cube::SizeTooLow::what() const throw () { return "Size too low"; }
 
 Cube::SizeTooLow::~SizeTooLow() throw () {}
+
+void	Cube::shuffle(size_t count)
+{
+	srand(time(0));
+	for (size_t i = 0; i < count; ++i)
+	{
+		int	axis = std::rand() % 3;
+		int	pos = std::rand() % _size;
+		switch (axis)
+		{
+		case 0:
+			rotateFace(pos, -1, -1, getXrotmat(-M_PI_2), Frot);
+			break;
+		case 1:
+			rotateFace(-1, pos, -1, getYrotmat(-M_PI_2), Rr);
+			break;
+		case 2:
+			rotateFace(-1, -1, pos, getZrotmat(-M_PI_2), Rrot);
+			break;
+		default:
+			break;
+		}
+	}
+}
