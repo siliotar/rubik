@@ -29,25 +29,25 @@ inline std::ostream& operator<<(std::ostream &os, Color &color)
 	switch (color)
 	{
 		case Black:
-			os << BLACK << "Black" << RESET;
+			os << BLACK << "██" << RESET;
 			break ;
 		case White:
-			os << "White";
+			os << "██";
 			break ;
 		case Orange:
-			os << ORANGE << "Orange" << RESET;
+			os << ORANGE << "██" << RESET;
 			break ;
 		case Green:
-			os << GREEN << "Green" << RESET;
+			os << GREEN << "██" << RESET;
 			break ;
 		case Red:
-			os << RED << "Red" << RESET;
+			os << RED << "██" << RESET;
 			break ;
 		case Blue:
-			os << BLUE << "Blue" << RESET;
+			os << BLUE << "██" << RESET;
 			break ;
 		case Yellow:
-			os << YELLOW << "Yellow" << RESET;
+			os << YELLOW << "██" << RESET;
 			break ;
 		default:
 			os << "[Unknown Color]";

@@ -18,28 +18,40 @@ Cube3::Cube3() : Cube(3)
 
 Cube3::~Cube3() {}
 
-void	Cube3::F() { rotateFace(-1, -1, 2, getZrotmat(-M_PI_2), Rrot); }
+std::string	Cube3::F() { rotateFace(-1, -1, 2, getZrotmat(-M_PI_2), Rrot); return "F"; }
 
-void	Cube3::rF() { rotateFace(-1, -1, 2, getZrotmat(M_PI_2), Lrot); }
+std::string	Cube3::rF() { rotateFace(-1, -1, 2, getZrotmat(M_PI_2), Lrot); return "F\'"; }
 
-void	Cube3::R() { rotateFace(2, -1, -1, getXrotmat(-M_PI_2), Frot); }
+std::string	Cube3::R() { rotateFace(2, -1, -1, getXrotmat(-M_PI_2), Frot); return "R"; }
 
-void	Cube3::rR() { rotateFace(2, -1, -1, getXrotmat(M_PI_2), Brot); }
+std::string	Cube3::rR() { rotateFace(2, -1, -1, getXrotmat(M_PI_2), Brot); return "R\'"; }
 
-void	Cube3::U() { rotateFace(-1, 2, -1, getYrotmat(-M_PI_2), Rr); }
+std::string	Cube3::U() { rotateFace(-1, 2, -1, getYrotmat(-M_PI_2), Rr); return "U"; }
 
-void	Cube3::rU() { rotateFace(-1, 2, -1, getYrotmat(M_PI_2), Lr); }
+std::string	Cube3::rU() { rotateFace(-1, 2, -1, getYrotmat(M_PI_2), Lr); return "U\'"; }
 
-void	Cube3::B() { rotateFace(-1, -1, 0, getZrotmat(M_PI_2), Lrot); }
+std::string	Cube3::B() { rotateFace(-1, -1, 0, getZrotmat(M_PI_2), Lrot); return "B"; }
 
-void	Cube3::rB() { rotateFace(-1, -1, 0, getZrotmat(-M_PI_2), Rrot); }
+std::string	Cube3::rB() { rotateFace(-1, -1, 0, getZrotmat(-M_PI_2), Rrot); return "B\'"; }
 
-void	Cube3::L() { rotateFace(0, -1, -1, getXrotmat(M_PI_2), Brot); }
+std::string	Cube3::L() { rotateFace(0, -1, -1, getXrotmat(M_PI_2), Brot); return "L"; }
 
-void	Cube3::rL() { rotateFace(0, -1, -1, getXrotmat(-M_PI_2), Frot); }
+std::string	Cube3::rL() { rotateFace(0, -1, -1, getXrotmat(-M_PI_2), Frot); return "L\'"; }
 
-void	Cube3::D() { rotateFace(-1, 0, -1, getYrotmat(M_PI_2), Lr); }
+std::string	Cube3::D() { rotateFace(-1, 0, -1, getYrotmat(M_PI_2), Lr); return "D"; }
 
-void	Cube3::rD() { rotateFace(-1, 0, -1, getYrotmat(-M_PI_2), Rr); }
+std::string	Cube3::rD() { rotateFace(-1, 0, -1, getYrotmat(-M_PI_2), Rr); return "D\'"; }
 
 void	Cube3::shuffle(size_t count) { _shuffle(*this, _methods, count); }
+
+void	Cube3::exec(const std::string &command)
+{
+	try
+	{
+		(this->*(_methods.at(command)))();
+	}
+	catch(const std::exception& e)
+	{
+		throw UnknownCommand();
+	}
+}

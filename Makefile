@@ -16,7 +16,8 @@ SOURCEFILES =	main.cpp \
 				Shape.cpp \
 				Cube3.cpp \
 				vec3.cpp \
-				mat3.cpp
+				mat3.cpp \
+				Solver.cpp
 
 SOURCE = $(addprefix $(SRCDIR), $(SOURCEFILES))
 
@@ -26,15 +27,19 @@ DEP = $(addprefix $(DEPDIR), $(SOURCEFILES:.cpp=.d))
 
 all: $(NAME)
 
-$(DEPDIR)%.d: $(SRCDIR)%.cpp
-	mkdir -p $(dir $@)
-	clang++ -MT $(<:$(SRCDIR)%.cpp=$(OBJDIR)%.o) -MM $< > $@ -I $(INCLUDEDIR)
-
 $(OBJDIR)%.o: $(SRCDIR)%.cpp
 	mkdir -p $(dir $@)
-	clang++ $(FLAGS) -c $< -o $@ -I $(INCLUDEDIR)
+	clang++ $(FLAGS) -c $< -o $@ -I $(INCLUDEDIR) -MMD -MF $(DEPDIR)$*.d
 
-$(NAME): $(DEP) $(OBJ)
+$(OBJDIR):
+	mkdir $(OBJDIR)
+
+$(DEPDIR):
+	mkdir $(DEPDIR)
+
+$(OBJ): | $(OBJDIR) $(DEPDIR)
+
+$(NAME): $(OBJ)
 	clang++  $(OBJ) -o $(NAME)
 
 clean:

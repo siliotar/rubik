@@ -19,4 +19,6 @@ class Shape
 		void	B();
 		void	Lr();
 		void	Rr();
+		bool	hasColor(Color c);
+		bool	equals(Color a = Black, Color b = Black, Color c = Black);
 };

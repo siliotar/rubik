@@ -1,41 +1,30 @@
 #include "Cube3.hpp"
+#include "Solver.hpp"
 
 int	main()
 {
 	Cube3	c;
+	Solver	s;
 	std::string	tmp;
 
 	c.print();
-	c.shuffle(3);
+	c.shuffle(20);
+	std::cout << std::endl;
+	c.print();
+	s.solve(&c);
 	std::cout << std::endl;
 	c.print();
 	while (1)
 	{
 		std::cin >> tmp;
-		if (tmp == "F")
-			c.F();
-		else if (tmp == "R")
-			c.R();
-		else if (tmp == "U")
-			c.U();
-		else if (tmp == "B")
-			c.B();
-		else if (tmp == "L")
-			c.L();
-		else if (tmp == "D")
-			c.D();
-		else if (tmp == "F\'")
-			c.rF();
-		else if (tmp == "R\'")
-			c.rR();
-		else if (tmp == "U\'")
-			c.rU();
-		else if (tmp == "B\'")
-			c.rB();
-		else if (tmp == "L\'")
-			c.rL();
-		else if (tmp == "D\'")
-			c.rD();
+		try
+		{
+			c.exec(tmp);
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
 		std::cout << std::endl;
 		c.print();
 	}

@@ -70,9 +70,9 @@ void	Cube::print()
 	for (int z = 0; z < _size; ++z)
 	{
 		for (int i = 0; i < _size; ++i)
-			std::cout << "\t";
+			std::cout << "   ";
 		for (int x = 0; x < _size; ++x)
-			std::cout << _shapes[x + _size * (_size - 1) + z * _size * _size]->_up << "\t";
+			std::cout << _shapes[x + _size * (_size - 1) + z * _size * _size]->_up << " ";
 		std::cout << std::endl;
 	}
 
@@ -81,25 +81,25 @@ void	Cube::print()
 		int	z = 0;
 		int	x = 0;
 		for (; z < _size; ++z)
-			std::cout << _shapes[x + y * _size + z * _size * _size]->_left << "\t";
+			std::cout << _shapes[x + y * _size + z * _size * _size]->_left << " ";
 		--z;
 		for (; x < _size; ++x)
-			std::cout << _shapes[x + y * _size + z * _size * _size]->_front << "\t";
+			std::cout << _shapes[x + y * _size + z * _size * _size]->_front << " ";
 		--x;
 		for (; z >= 0; --z)
-			std::cout << _shapes[x + y * _size + z * _size * _size]->_right << "\t";
+			std::cout << _shapes[x + y * _size + z * _size * _size]->_right << " ";
 		++z;
 		for (; x >= 0; --x)
-			std::cout << _shapes[x + y * _size + z * _size * _size]->_back << "\t";
+			std::cout << _shapes[x + y * _size + z * _size * _size]->_back << " ";
 		std::cout << std::endl;
 	}
 	
 	for (int z = _size - 1; z >= 0; --z)
 	{
 		for (int i = 0; i < _size; ++i)
-			std::cout << "\t";
+			std::cout << "   ";
 		for (int x = 0; x < _size; ++x)
-			std::cout << _shapes[x + z * _size * _size]->_down << "\t";
+			std::cout << _shapes[x + z * _size * _size]->_down << " ";
 		std::cout << std::endl;
 	}
 }
@@ -115,6 +115,10 @@ Cube::SizeTooLow::SizeTooLow() {}
 const char* Cube::SizeTooLow::what() const throw () { return "Size too low"; }
 
 Cube::SizeTooLow::~SizeTooLow() throw () {}
+
+Cube::UnknownCommand::UnknownCommand() {}
+const char* Cube::UnknownCommand::what() const throw () { return "Unknowsn command"; }
+Cube::UnknownCommand::~UnknownCommand() throw () {}
 
 void	Cube::shuffle(size_t count)
 {
@@ -139,3 +143,7 @@ void	Cube::shuffle(size_t count)
 		}
 	}
 }
+
+void	Cube::exec(const std::string &command) { (void)command; throw UnknownCommand(); }
+
+Shape	**	Cube::getShapes() const { return _shapes; }

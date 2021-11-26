@@ -52,3 +52,12 @@ void	Shape::Rr()
 	rotate(_back, _left, _front, _right);
 }
 
+bool	Shape::hasColor(Color c)
+{
+	return _up == c || _left == c || _front == c || _right == c || _back == c || _down == c;
+}
+
+bool	Shape::equals(Color a, Color b, Color c)
+{
+	return hasColor(a) && hasColor(b) && hasColor(c);
+}
