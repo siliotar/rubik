@@ -62,10 +62,10 @@ bool	Shape::equals(Color a, Color b, Color c)
 	return hasColor(a) && hasColor(b) && hasColor(c);
 }
 
-Color	Shape::getFirstNot(Color color)
+const Color	&Shape::getFirstNot(Color color)
 {
-	return _up != color ? _up : _left != color ? _left : _front != color ? _front \
-	: _right != color ? _right : _back != color ? _back : _down;
+	return _up != Black && _up != color ? _up : _left != Black && _left != color ? _left : _front != Black && _front != color ? _front \
+	: _right != Black && _right != color ? _right : _back != Black && _back != color ? _back : _down;
 }
 
 bool	Shape::horisontalEqual(const Shape &other)

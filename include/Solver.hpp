@@ -19,6 +19,7 @@ class Solver
 		void	_solve3s1(Cube3 *cube);
 		void	_solve3s2(Cube3 *cube);
 		void	_solve3s3(Cube3 *cube);
+		void	_solve3s4(Cube3 *cube);
 		void	_spinForNonWhite(Cube3 *cube, int pos);
 		void	_swapUpForCross(Cube3 *cube, int pos, Color color);
 		void	_swap(Cube3 *cube, int first, int second, Method m1, Method m2);

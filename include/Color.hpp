@@ -24,7 +24,7 @@ enum Color
 	Yellow
 };
 
-inline std::ostream& operator<<(std::ostream &os, Color &color)
+inline std::ostream& operator<<(std::ostream &os, const Color &color)
 {
 	switch (color)
 	{

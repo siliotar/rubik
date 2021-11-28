@@ -21,6 +21,6 @@ class Shape
 		void	Rr();
 		bool	hasColor(Color c);
 		bool	equals(Color a = Black, Color b = Black, Color c = Black);
-		Color	getFirstNot(Color color);
+		const Color	&getFirstNot(Color color);
 		bool	horisontalEqual(const Shape &other);
 };
