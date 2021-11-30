@@ -11,7 +11,8 @@ int	main()
 	c.shuffle(20);
 	std::cout << std::endl;
 	c.print();
-	s.solve(&c);
+	Commands	commands = s.solve(&c);
+	std::cout << "size = " << commands.size() << std::endl;
 	std::cout << std::endl;
 	c.print();
 	while (1)

@@ -16,10 +16,10 @@ void	Solver::_spinForNonWhite(Cube3 *cube, int pos)
 	++i;
 	i %= 4;
 	if (cube->getShapes()[possiblePos[i]]->_up != White)
-		_commands << cube->rU() << " ";
+		_commands.push(cube->rU());
 	else
 		while (cube->getShapes()[pos]->_up == White)
-			_commands << cube->U() << " ";
+			_commands.push(cube->U());
 }
 
 void	Solver::_swap(Cube3 *cube, int first, int second, Method m1, Method m2)
@@ -34,12 +34,12 @@ void	Solver::_swap(Cube3 *cube, int first, int second, Method m1, Method m2)
 	{
 		if (moves > 0)
 		{
-			_commands << (cube->*m1)() << " ";
+			_commands.push((cube->*m1)());
 			--moves;
 		}
 		else
 		{
-			_commands << (cube->*m2)() << " ";
+			_commands.push((cube->*m2)());
 			++moves;
 		}
 	}
@@ -60,11 +60,11 @@ void	Solver::_swapUpForCross(Cube3 *cube, int pos, Color color)
 	for (i = 0; i < 4; ++i)
 		if (cube->getShapes()[possiblePos[i]]->hasColor(color))
 			break ;
-	_commands << (cube->*(m1[pos]))() << " ";
+	_commands.push((cube->*(m1[pos]))());
 	_swap(cube, i, pos, &Cube3::rU, &Cube3::U);
-	_commands << (cube->*(m2[pos]))() << " ";
+	_commands.push((cube->*(m2[pos]))());
 	_swap(cube, i, pos, &Cube3::U, &Cube3::rU);
-	_commands << (cube->*(m1[pos]))() << " ";
+	_commands.push((cube->*(m1[pos]))());
 }
 
 //	Ideas: insert immediately in the right place
@@ -84,13 +84,13 @@ void	Solver::_solve3s1(Cube3 *cube)
 			if (i < 4)
 			{
 				if (tmp->_left == White)
-					_commands << cube->L() << " ";
+					_commands.push(cube->L());
 				else if (tmp->_back == White)
-					_commands << cube->B() << " ";
+					_commands.push(cube->B());
 				else if (tmp->_right == White)
-					_commands << cube->R() << " ";
+					_commands.push(cube->R());
 				else
-					_commands << cube->F() << " ";
+					_commands.push(cube->F());
 			}
 			else if (i < 8)
 			{
@@ -99,12 +99,12 @@ void	Solver::_solve3s1(Cube3 *cube)
 					if (tmp->_left != Black)
 					{
 						_spinForNonWhite(cube, 15);
-						_commands << (tmp->_front == White ? cube->rL() : cube->L()) << " ";
+						_commands.push((tmp->_front == White ? cube->rL() : cube->L()));
 					}
 					else
 					{
 						_spinForNonWhite(cube, 17);
-						_commands << (tmp->_front == White ? cube->R() : cube->rR()) << " ";
+						_commands.push((tmp->_front == White ? cube->R() : cube->rR()));
 					}
 
 				}
@@ -113,12 +113,12 @@ void	Solver::_solve3s1(Cube3 *cube)
 					if (tmp->_back != Black)
 					{
 						_spinForNonWhite(cube, 7);
-						_commands << (tmp->_left == White ? cube->rB() : cube->B()) << " ";
+						_commands.push((tmp->_left == White ? cube->rB() : cube->B()));
 					}
 					else
 					{
 						_spinForNonWhite(cube, 25);
-						_commands << (tmp->_left == White ? cube->F() : cube->rF()) << " ";
+						_commands.push((tmp->_left == White ? cube->F() : cube->rF()));
 					}
 				}
 			}
@@ -127,48 +127,48 @@ void	Solver::_solve3s1(Cube3 *cube)
 				if (tmp->_left == White)
 				{
 					_spinForNonWhite(cube, 15);
-					_commands << cube->L() << " ";
+					_commands.push(cube->L());
 				}
 				else if (tmp->_back == White)
 				{
 					_spinForNonWhite(cube, 7);
-					_commands << cube->B() << " ";
+					_commands.push(cube->B());
 				}
 				else if (tmp->_right == White)
 				{
 					_spinForNonWhite(cube, 17);
-					_commands << cube->R() << " ";
+					_commands.push(cube->R());
 				}
 				else if (tmp->_front == White)
 				{
 					_spinForNonWhite(cube, 25);
-					_commands << cube->F() << " ";
+					_commands.push(cube->F());
 				}
 				else
 				{
 					if (tmp->_left != Black)
 					{
 						_spinForNonWhite(cube, 15);
-						_commands << cube->L() << " ";
-						_commands << cube->L() << " ";
+						_commands.push(cube->L());
+						_commands.push(cube->L());
 					}
 					else if (tmp->_right != Black)
 					{
 						_spinForNonWhite(cube, 17);
-						_commands << cube->R() << " ";
-						_commands << cube->R() << " ";
+						_commands.push(cube->R());
+						_commands.push(cube->R());
 					}
 					else if (tmp->_back != Black)
 					{
 						_spinForNonWhite(cube, 7);
-						_commands << cube->B() << " ";
-						_commands << cube->B() << " ";
+						_commands.push(cube->B());
+						_commands.push(cube->B());
 					}
 					else
 					{
 						_spinForNonWhite(cube, 25);
-						_commands << cube->F() << " ";
-						_commands << cube->F() << " ";
+						_commands.push(cube->F());
+						_commands.push(cube->F());
 					}
 				}
 			}
@@ -188,12 +188,18 @@ void	Solver::_solve3s1(Cube3 *cube)
 	_swap(cube, 0, i, &Cube3::U, &Cube3::rU);
 }
 
-void	Solver::_s2pifpaf(Cube3 *cube, Method m1, Method m2)
+void	Solver::_rpifpaf(Cube3 *cube, Method m1, Method m2, bool up)
 {
-	_commands << (cube->*m1)() << " ";
-	_commands << cube->D() << " ";
-	_commands << (cube->*m2)() << " ";
-	_commands << cube->rD() << " ";
+	_commands.push((cube->*m1)());
+	if (up)
+		_commands.push(cube->U());
+	else
+		_commands.push(cube->D());
+	_commands.push((cube->*m2)());
+	if (up)
+		_commands.push(cube->rU());
+	else
+		_commands.push(cube->rD());
 }
 
 void	Solver::_solve3s2(Cube3 *cube)
@@ -229,23 +235,29 @@ void	Solver::_solve3s2(Cube3 *cube)
 			{
 				_swap(cube, i, pos, &Cube3::D, &Cube3::rD);
 				while (cube->getShapes()[rightPos[pos]] != shape || cube->getShapes()[rightPos[pos]]->_up != White)
-					_s2pifpaf(cube, m[pos], rm[pos]);
+					_rpifpaf(cube, m[pos], rm[pos]);
 			}
 			else if (possiblePos[i] == rightPos[pos] && shape->_up == White)
 				continue ;
 			else
-				_s2pifpaf(cube, m[pos], rm[pos]);
+				_rpifpaf(cube, m[pos], rm[pos]);
 			i = -1;
 		}
 	}
 }
 
-void	Solver::_s3pifpaf(Cube3 *cube, Method m1, Method m2)
+void	Solver::_lpifpaf(Cube3 *cube, Method m1, Method m2, bool up)
 {
-	_commands << (cube->*m1)() << " ";
-	_commands << cube->rD() << " ";
-	_commands << (cube->*m2)() << " ";
-	_commands << cube->D() << " ";
+	_commands.push((cube->*m1)());
+	if (up)
+		_commands.push(cube->rU());
+	else
+		_commands.push(cube->rD());
+	_commands.push((cube->*m2)());
+	if (up)
+		_commands.push(cube->U());
+	else
+		_commands.push(cube->D());
 }
 
 void	Solver::_solve3s3(Cube3 *cube)
@@ -298,24 +310,24 @@ void	Solver::_solve3s3(Cube3 *cube)
 				(shape->_down > shape->getFirstNot(shape->_down) || (shape->_down == Orange && shape->getFirstNot(shape->_down) == Blue)))
 				{
 					//	Left
-					_commands << cube->rD() << " ";
-					_s3pifpaf(cube, rm2[pos], m2[pos]);
-					_s2pifpaf(cube, m1[pos], rm1[pos]);
+					_commands.push(cube->rD());
+					_lpifpaf(cube, rm2[pos], m2[pos]);
+					_rpifpaf(cube, m1[pos], rm1[pos]);
 				}
 				else
 				{
 					//	Right
-					_commands << cube->D() << " ";
-					_s2pifpaf(cube, m1[pos], rm1[pos]);
-					_s3pifpaf(cube, rm2[pos], m2[pos]);
+					_commands.push(cube->D());
+					_rpifpaf(cube, m1[pos], rm1[pos]);
+					_lpifpaf(cube, rm2[pos], m2[pos]);
 				}
 			}
 			else if (possiblePos[i] == rightPos[pos] && shape->horisontalEqual(*cube->getShapes()[rightPos[pos] + 3]))
 				continue ;
 			else
 			{
-				_s2pifpaf(cube, m1[pos], rm1[pos]);
-				_s3pifpaf(cube, rm2[pos], m2[pos]);
+				_rpifpaf(cube, m1[pos], rm1[pos]);
+				_lpifpaf(cube, rm2[pos], m2[pos]);
 			}
 			i = -1;
 		}
@@ -324,7 +336,248 @@ void	Solver::_solve3s3(Cube3 *cube)
 
 void	Solver::_solve3s4(Cube3 *cube)
 {
+	int	possiblePos[] = {
+		1, 9, 19, 11
+	};
+	Method	f[] = {
+		&Cube3::R, &Cube3::B, &Cube3::L, &Cube3::F
+	};
+	Method	rf[] = {
+		&Cube3::rR, &Cube3::rB, &Cube3::rL, &Cube3::rF
+	};
+	Method	m[] = {
+		&Cube3::F, &Cube3::R, &Cube3::B, &Cube3::L
+	};
+	Method	rm[] = {
+		&Cube3::rF, &Cube3::rR, &Cube3::rB, &Cube3::rL
+	};
+	while (cube->getShapes()[possiblePos[0]]->_down != Yellow || \
+		cube->getShapes()[possiblePos[1]]->_down != Yellow || \
+		cube->getShapes()[possiblePos[2]]->_down != Yellow || \
+		cube->getShapes()[possiblePos[3]]->_down != Yellow)
+	{
+		int	t = 0;
+		if ((cube->getShapes()[possiblePos[0]]->_down == Yellow && \
+			cube->getShapes()[possiblePos[2]]->_down == Yellow) || \
+			(cube->getShapes()[possiblePos[1]]->_down == Yellow && \
+			cube->getShapes()[possiblePos[3]]->_down == Yellow && (t = 1) == 1))
+		{
+			if (t)
+			{
+				_commands.push(cube->F());
+				_rpifpaf(cube, &Cube3::L, &Cube3::rL);
+				_commands.push(cube->rF());
+			}
+			else
+			{
+				_commands.push(cube->L());
+				_rpifpaf(cube, &Cube3::B, &Cube3::rB);
+				_commands.push(cube->rL());
+			}
+			continue ;
+		}
+		int i;
+		for (i = 0; i < 4; ++i)
+		{
+			if (cube->getShapes()[possiblePos[i]]->_down == Yellow \
+				&& cube->getShapes()[possiblePos[(i + 1) % 4]]->_down == Yellow)
+			{
+				_commands.push((cube->*f[i])());
+				_rpifpaf(cube, m[i], rm[i]);
+				_commands.push((cube->*rf[i])());
+				i = 10;
+				break ;
+			}
+		}
+		if (i != 10)
+		{
+			_commands.push((cube->*f[0])());
+			_rpifpaf(cube, m[0], rm[0]);
+			_commands.push((cube->*rf[0])());
+		}
+	}
+}
 
+int		Solver::_s5findClose(Cube3 *cube)
+{
+	int	possiblePos[] = {
+		1, 9, 19, 11
+	};
+	int	i;
+	for (i = 0; i < 4; ++i)
+		if (cube->getShapes()[possiblePos[i]]->getFirstNot(Yellow) == \
+			cube->getShapes()[possiblePos[i] + 3]->getFirstNot(Yellow) && \
+			cube->getShapes()[possiblePos[(i + 1) % 4]]->getFirstNot(Yellow) == \
+			cube->getShapes()[possiblePos[(i + 1) % 4] + 3]->getFirstNot(Yellow))
+			return i;
+	return i;
+}
+
+int		Solver::_s5findOpos(Cube3 *cube)
+{
+	int	possiblePos[] = {
+		1, 9, 19, 11
+	};
+	int	i;
+	for (i = 0; i < 2; ++i)
+		if (cube->getShapes()[possiblePos[i]]->getFirstNot(Yellow) == \
+			cube->getShapes()[possiblePos[i] + 3]->getFirstNot(Yellow) && \
+			cube->getShapes()[possiblePos[i + 2]]->getFirstNot(Yellow) == \
+			cube->getShapes()[possiblePos[i + 2] + 3]->getFirstNot(Yellow))
+			return i;
+	return i;
+}
+
+void	Solver::_solve3s5(Cube3 *cube)
+{
+	int	possiblePos[] = {
+		1, 9, 19, 11
+	};
+	int	i;
+	for (i = 0; i < 3; ++i)
+	{
+		if (_s5findClose(cube) == 4)
+			_commands.push(cube->D());
+		else
+			break ;
+	}
+	for (i = 0; i < 4; ++i)
+		if (cube->getShapes()[possiblePos[i]]->getFirstNot(Yellow) != \
+			cube->getShapes()[possiblePos[i] + 3]->getFirstNot(Yellow))
+			break ;
+	if (i == 4)
+		return ;
+	Method	m[] = {
+		&Cube3::L, &Cube3::F, &Cube3::R, &Cube3::B
+	};
+	Method	rm[] = {
+		&Cube3::rL, &Cube3::rF, &Cube3::rR, &Cube3::rB
+	};
+	if ((i = _s5findClose(cube)) == 4)
+	{
+		int	t;
+		for (int i = 0; i < 3; ++i)
+		{
+			if ((t = _s5findOpos(cube)) == 2)
+				_commands.push(cube->D());
+			else
+				break ;
+		}
+		_commands.push((cube->*m[t + 1])());
+		_commands.push(cube->D());
+		_commands.push((cube->*rm[t + 1])());
+		_commands.push(cube->D());
+		_commands.push((cube->*m[t + 1])());
+		_commands.push(cube->D());
+		_commands.push(cube->D());
+		_commands.push((cube->*rm[t + 1])());
+		for (i = 0; i < 3; ++i)
+		{
+			if (_s5findClose(cube) == 4)
+				_commands.push(cube->D());
+			else
+				break ;
+		}
+	}
+	i = _s5findClose(cube);
+	_commands.push((cube->*m[i])());
+	_commands.push(cube->D());
+	_commands.push((cube->*rm[i])());
+	_commands.push(cube->D());
+	_commands.push((cube->*m[i])());
+	_commands.push(cube->D());
+	_commands.push(cube->D());
+	_commands.push((cube->*rm[i])());
+	_commands.push(cube->D());
+}
+
+bool	Solver::_s6correctAngle(Cube3 *cube, int pos)
+{
+	Color	f = cube->getShapes()[pos + 3]->getFirstNot(Black);
+	Color	s = cube->getShapes()[pos + 3]->getFirstNot(f);
+	if (!cube->getShapes()[pos]->hasColor(f) || \
+		!cube->getShapes()[pos]->hasColor(s))
+		return false;
+	return true;
+}
+
+bool	Solver::_s6correctAngles(Cube3 *cube)
+{
+	int	possiblePos[] = {
+		0, 18, 20, 2
+	};
+	for (int i = 0; i < 4; ++i)
+		if (!_s6correctAngle(cube, possiblePos[i]))
+			return false;
+	return true;
+}
+
+void	Solver::_solve3s6(Cube3 *cube)
+{
+	int	possiblePos[] = {
+		0, 18, 20, 2
+	};
+	Method	r[] = {
+		&Cube3::R, &Cube3::B, &Cube3::L, &Cube3::F
+	};
+	Method	rr[] = {
+		&Cube3::rR, &Cube3::rB, &Cube3::rL, &Cube3::rF
+	};
+	Method	l[] = {
+		&Cube3::L, &Cube3::F, &Cube3::R, &Cube3::B
+	};
+	Method	rl[] = {
+		&Cube3::rL, &Cube3::rF, &Cube3::rR, &Cube3::rB
+	};
+	while (!_s6correctAngles(cube))
+	{
+		int	i;
+		for (i = 0; i < 4; ++i)
+			if (_s6correctAngle(cube, possiblePos[i]))
+				break ;
+		i %= 4;
+		_commands.push((cube->*r[i])());
+		_commands.push(cube->rD());
+		_commands.push((cube->*rl[i])());
+		_commands.push(cube->D());
+		_commands.push((cube->*rr[i])());
+		_commands.push(cube->rD());
+		_commands.push((cube->*l[i])());
+		_commands.push(cube->D());
+	}
+}
+
+bool	Solver::_s7correctAngle(Cube3 *cube, int pos)
+{
+	if (cube->getShapes()[pos]->horisontalEqual(*cube->getShapes()[pos + 3]) && \
+		cube->getShapes()[pos]->_down == Yellow)
+		return true;
+	return false;
+}
+
+bool	Solver::_s7correctAngles(Cube3 *cube)
+{
+	int	possiblePos[] = {
+		0, 18, 20, 2
+	};
+	for (int i = 0; i < 4; ++i)
+		if (!_s7correctAngle(cube, possiblePos[i]))
+			return false;
+	return true;
+}
+
+void	Solver::_solve3s7(Cube3 *cube)
+{
+	if (_s7correctAngles(cube))
+		return ;
+	for (int i = 0; i < 4; ++i)
+	{
+		while (cube->getShapes()[20]->_front != cube->getShapes()[19]->_front || \
+				cube->getShapes()[20]->_right != cube->getShapes()[11]->_right || \
+				cube->getShapes()[20]->_down != Yellow)
+			_rpifpaf(cube, &Cube3::R, &Cube3::rR, true);
+		_commands.push(cube->D());
+	}
 }
 
 void	Solver::_solve3(Cube3 *cube)
@@ -347,17 +600,35 @@ void	Solver::_solve3(Cube3 *cube)
 	std::cout << "--------------- Stage 3 ---------------" << std::endl;
 	cube->print();
 
-	//	4-th stage (Yello cross)
-	// _solve3s4(cube);
+	//	4-th stage (Yellow cross)
+	_solve3s4(cube);
 	
-	// std::cout << "--------------- Stage 4 ---------------" << std::endl;
-	// cube->print();
+	std::cout << "--------------- Stage 4 ---------------" << std::endl;
+	cube->print();
 
-	std::cout << _commands.str() << std::endl;
+	//	5-th stage (Correct yellow cross)
+	_solve3s5(cube);
+	
+	std::cout << "--------------- Stage 5 ---------------" << std::endl;
+	cube->print();
+
+	//	6-th stage (Correct angles in 3-rd layer)
+	_solve3s6(cube);
+	
+	std::cout << "--------------- Stage 6 ---------------" << std::endl;
+	cube->print();
+
+	//	7-th stage (Final)
+	_solve3s7(cube);
+	
+	std::cout << "--------------- Stage 7 ---------------" << std::endl;
+	cube->print();
 }
 
-void	Solver::solve(Cube *cube)
+Commands	&Solver::solve(Cube *cube)
 {
+	_commands.clear();
 	if (dynamic_cast<Cube3*>(cube))
 		_solve3(dynamic_cast<Cube3*>(cube));
+	return _commands;
 }

@@ -17,7 +17,8 @@ SOURCEFILES =	main.cpp \
 				Cube3.cpp \
 				vec3.cpp \
 				mat3.cpp \
-				Solver.cpp
+				Solver.cpp \
+				Commands.cpp
 
 SOURCE = $(addprefix $(SRCDIR), $(SOURCEFILES))
 
