@@ -36,7 +36,6 @@ class Cube
 		void	_shuffle(Child &c, std::map<std::string, std::string (Child::*)()> methods, size_t count)
 		{
 			typedef typename std::map<std::string, std::string (Child::*)()>::iterator	iterator;
-			srand(time(0));
 			std::string	prevMove = "";
 			for (size_t i = 0; i < count; ++i)
 			{

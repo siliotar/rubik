@@ -28,8 +28,8 @@ class Solver
 		void	_spinForNonWhite(Cube3 *cube, int pos);
 		void	_swapUpForCross(Cube3 *cube, int pos, Color color);
 		void	_swap(Cube3 *cube, int first, int second, Method m1, Method m2);
-		void	_rpifpaf(Cube3 *cube, Method m1, Method m2, bool up = false);
-		void	_lpifpaf(Cube3 *cube, Method m1, Method m2, bool up = false);
+		void	_rpifpaf(Cube3 *cube, Method m1, Method m2, bool up = false, bool last = true);
+		void	_lpifpaf(Cube3 *cube, Method m1, Method m2, bool up = false, bool last = true);
 		int		_s5findClose(Cube3 *cube);
 		int		_s5findOpos(Cube3 *cube);
 		bool	_s6correctAngle(Cube3 *cube, int pos);

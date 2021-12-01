@@ -72,8 +72,8 @@ void	Solver::_swapUpForCross(Cube3 *cube, int pos, Color color)
 void	Solver::_solve3s1(Cube3 *cube)
 {
 	int	possiblePos[] = {
-		7, 17, 25, 15,
 		3, 5, 21, 23,
+		7, 17, 25, 15,
 		1, 9, 11, 19
 	};
 	for (int i = 0; i < 12; ++i)
@@ -82,17 +82,6 @@ void	Solver::_solve3s1(Cube3 *cube)
 		if (tmp->hasColor(White) && tmp->_up != White)
 		{
 			if (i < 4)
-			{
-				if (tmp->_left == White)
-					_commands.push(cube->L());
-				else if (tmp->_back == White)
-					_commands.push(cube->B());
-				else if (tmp->_right == White)
-					_commands.push(cube->R());
-				else
-					_commands.push(cube->F());
-			}
-			else if (i < 8)
 			{
 				if (tmp->_front == White || tmp->_back == White )
 				{
@@ -121,6 +110,17 @@ void	Solver::_solve3s1(Cube3 *cube)
 						_commands.push((tmp->_left == White ? cube->F() : cube->rF()));
 					}
 				}
+			}
+			else if (i < 8)
+			{
+				if (tmp->_left == White)
+					_commands.push(cube->L());
+				else if (tmp->_back == White)
+					_commands.push(cube->B());
+				else if (tmp->_right == White)
+					_commands.push(cube->R());
+				else
+					_commands.push(cube->F());
 			}
 			else
 			{
@@ -175,20 +175,23 @@ void	Solver::_solve3s1(Cube3 *cube)
 			i = -1;
 		}
 	}
-	Color	colorOrder[] = {
-		Blue, Red, Green, Orange
-	};
-	int	i;
-	for (i = 0; i < 4; ++i)
-		if (cube->getShapes()[possiblePos[i]]->hasColor(Blue))
+	for (int i = 0; i < 4; ++i)
+	{
+		int right = 0;
+		Shape	**shapes = cube->getShapes();
+		for (int j = 4; j < 8; ++j)
+			if (shapes[possiblePos[j]]->horisontalEqual(*shapes[possiblePos[j] - 3]))
+				++right;
+		if (right > 1)
 			break ;
-	for (int j = 1; j < 4; ++j)
-		if (!cube->getShapes()[possiblePos[(i + j) % 4]]->hasColor(colorOrder[j]))
-			_swapUpForCross(cube, (i + j) % 4, colorOrder[j]);
-	_swap(cube, 0, i, &Cube3::U, &Cube3::rU);
+		_commands.push(cube->U());
+	}
+	for (int i = 4; i < 8; ++i)
+		if (!cube->getShapes()[possiblePos[i]]->horisontalEqual(*cube->getShapes()[possiblePos[i] - 3]))
+			_swapUpForCross(cube, i - 4, cube->getShapes()[possiblePos[i] - 3]->getFirstNot(Black));
 }
 
-void	Solver::_rpifpaf(Cube3 *cube, Method m1, Method m2, bool up)
+void	Solver::_rpifpaf(Cube3 *cube, Method m1, Method m2, bool up, bool last)
 {
 	_commands.push((cube->*m1)());
 	if (up)
@@ -196,6 +199,8 @@ void	Solver::_rpifpaf(Cube3 *cube, Method m1, Method m2, bool up)
 	else
 		_commands.push(cube->D());
 	_commands.push((cube->*m2)());
+	if (!last)
+		return ;
 	if (up)
 		_commands.push(cube->rU());
 	else
@@ -217,12 +222,19 @@ void	Solver::_solve3s2(Cube3 *cube)
 	Method	rm[] = {
 		&Cube3::rB, &Cube3::rR, &Cube3::rF, &Cube3::rL
 	};
+	Method	lm[] = {
+		&Cube3::L, &Cube3::B, &Cube3::R, &Cube3::F
+	};
+	Method	rlm[] = {
+		&Cube3::rL, &Cube3::rB, &Cube3::rR, &Cube3::rF
+	};
 	for (int i = 0; i < 8; ++i)
 	{
 		Shape	*shape = cube->getShapes()[possiblePos[i]];
 		if (shape->hasColor(White))
 		{
-			int pos;
+			bool	left;
+			int		pos;
 			if (shape->equals(White, Orange, Blue))
 				pos = 0;
 			else if (shape->equals(White, Blue, Red))
@@ -234,8 +246,15 @@ void	Solver::_solve3s2(Cube3 *cube)
 			if (i < 4)
 			{
 				_swap(cube, i, pos, &Cube3::D, &Cube3::rD);
+				left = (pos == 0 && cube->getShapes()[0]->_left == White) || \
+						(pos == 1 && cube->getShapes()[2]->_back == White) || \
+						(pos == 2 && cube->getShapes()[20]->_right == White) || \
+						(pos == 3 && cube->getShapes()[18]->_front == White);
 				while (cube->getShapes()[rightPos[pos]] != shape || cube->getShapes()[rightPos[pos]]->_up != White)
-					_rpifpaf(cube, m[pos], rm[pos]);
+					if (left)
+						_lpifpaf(cube, rlm[pos], lm[pos]);
+					else
+						_rpifpaf(cube, m[pos], rm[pos]);
 			}
 			else if (possiblePos[i] == rightPos[pos] && shape->_up == White)
 				continue ;
@@ -246,7 +265,7 @@ void	Solver::_solve3s2(Cube3 *cube)
 	}
 }
 
-void	Solver::_lpifpaf(Cube3 *cube, Method m1, Method m2, bool up)
+void	Solver::_lpifpaf(Cube3 *cube, Method m1, Method m2, bool up, bool last)
 {
 	_commands.push((cube->*m1)());
 	if (up)
@@ -254,6 +273,8 @@ void	Solver::_lpifpaf(Cube3 *cube, Method m1, Method m2, bool up)
 	else
 		_commands.push(cube->rD());
 	_commands.push((cube->*m2)());
+	if (!last)
+		return ;
 	if (up)
 		_commands.push(cube->U());
 	else
@@ -312,14 +333,14 @@ void	Solver::_solve3s3(Cube3 *cube)
 					//	Left
 					_commands.push(cube->rD());
 					_lpifpaf(cube, rm2[pos], m2[pos]);
-					_rpifpaf(cube, m1[pos], rm1[pos]);
+					_rpifpaf(cube, m1[pos], rm1[pos], false, false);
 				}
 				else
 				{
 					//	Right
 					_commands.push(cube->D());
 					_rpifpaf(cube, m1[pos], rm1[pos]);
-					_lpifpaf(cube, rm2[pos], m2[pos]);
+					_lpifpaf(cube, rm2[pos], m2[pos], false, false);
 				}
 			}
 			else if (possiblePos[i] == rightPos[pos] && shape->horisontalEqual(*cube->getShapes()[rightPos[pos] + 3]))
@@ -327,7 +348,7 @@ void	Solver::_solve3s3(Cube3 *cube)
 			else
 			{
 				_rpifpaf(cube, m1[pos], rm1[pos]);
-				_lpifpaf(cube, rm2[pos], m2[pos]);
+				_lpifpaf(cube, rm2[pos], m2[pos], false, false);
 			}
 			i = -1;
 		}
@@ -384,17 +405,14 @@ void	Solver::_solve3s4(Cube3 *cube)
 			{
 				_commands.push((cube->*f[i])());
 				_rpifpaf(cube, m[i], rm[i]);
+				_rpifpaf(cube, m[i], rm[i]);
 				_commands.push((cube->*rf[i])());
-				i = 10;
-				break ;
+				return ;
 			}
 		}
-		if (i != 10)
-		{
-			_commands.push((cube->*f[0])());
-			_rpifpaf(cube, m[0], rm[0]);
-			_commands.push((cube->*rf[0])());
-		}
+		_commands.push((cube->*f[0])());
+		_rpifpaf(cube, m[0], rm[0]);
+		_commands.push((cube->*rf[0])());
 	}
 }
 
@@ -582,46 +600,61 @@ void	Solver::_solve3s7(Cube3 *cube)
 
 void	Solver::_solve3(Cube3 *cube)
 {
+	size_t prev = 0;
 	//	1-st stage (White cross)
 	_solve3s1(cube);
 
 	std::cout << "--------------- Stage 1 ---------------" << std::endl;
+	std::cout << _commands.size() - prev << std::endl;
+	prev = _commands.size();
 	cube->print();
 
 	//	2-nd stage (First layer)
 	_solve3s2(cube);
 	
 	std::cout << "--------------- Stage 2 ---------------" << std::endl;
+	std::cout << _commands.size() - prev << std::endl;
+	prev = _commands.size();
 	cube->print();
 
 	//	3-rd stage (Middle layer)
 	_solve3s3(cube);
 	
 	std::cout << "--------------- Stage 3 ---------------" << std::endl;
+	std::cout << _commands.size() - prev << std::endl;
+	prev = _commands.size();
 	cube->print();
 
 	//	4-th stage (Yellow cross)
 	_solve3s4(cube);
 	
 	std::cout << "--------------- Stage 4 ---------------" << std::endl;
+	std::cout << _commands.size() - prev << std::endl;
+	prev = _commands.size();
 	cube->print();
 
 	//	5-th stage (Correct yellow cross)
 	_solve3s5(cube);
 	
 	std::cout << "--------------- Stage 5 ---------------" << std::endl;
+	std::cout << _commands.size() - prev << std::endl;
+	prev = _commands.size();
 	cube->print();
 
 	//	6-th stage (Correct angles in 3-rd layer)
 	_solve3s6(cube);
 	
 	std::cout << "--------------- Stage 6 ---------------" << std::endl;
+	std::cout << _commands.size() - prev << std::endl;
+	prev = _commands.size();
 	cube->print();
 
 	//	7-th stage (Final)
 	_solve3s7(cube);
 	
 	std::cout << "--------------- Stage 7 ---------------" << std::endl;
+	std::cout << _commands.size() - prev << std::endl;
+	prev = _commands.size();
 	cube->print();
 }
 
