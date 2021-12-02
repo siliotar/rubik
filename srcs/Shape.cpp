@@ -10,6 +10,15 @@ Shape::Shape(int x, int y, int z, int size)
 	_down = y == 0 ? Yellow : Black;
 }
 
+Shape::Shape(const Shape &copy) :
+_up(copy._up),
+_left(copy._left),
+_front(copy._front),
+_right(copy._right),
+_back(copy._back),
+_down(copy._down)
+{}
+
 Shape::~Shape()
 {}
 

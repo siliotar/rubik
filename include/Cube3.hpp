@@ -28,6 +28,7 @@ class Cube3 : public Cube
 		std::string	rL();
 		std::string	D();
 		std::string	rD();
-		virtual void	shuffle(size_t count);
-		virtual	void	exec(const std::string &command);
+		void	shuffle(size_t count);
+		void	exec(const std::string &command);
+		void	execline(const std::string &commandLine);
 };

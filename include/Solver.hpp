@@ -13,12 +13,14 @@ class Solver
 {
 	private:
 		typedef std::string (Cube3::*Method)();
+		typedef void (Shape::*ShapeMethod)();
 		Commands	_commands;
 		Solver(const Solver& copy);
 		Solver	&operator=(const Solver& other);
 
-		void	_solve3(Cube3 *cube);
+		void	_solve3(Cube3 *cube, bool print);
 		void	_solve3s1(Cube3 *cube);
+		void	_solve3s1v2(Cube3 *cube);
 		void	_solve3s2(Cube3 *cube);
 		void	_solve3s3(Cube3 *cube);
 		void	_solve3s4(Cube3 *cube);
@@ -39,5 +41,5 @@ class Solver
 	public:
 		Solver();
 		virtual ~Solver();
-		Commands	&solve(Cube *cube);
+		Commands	&solve(Cube *cube, bool print = true);
 };

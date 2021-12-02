@@ -55,3 +55,24 @@ void	Cube3::exec(const std::string &command)
 		throw UnknownCommand();
 	}
 }
+
+void	Cube3::execline(const std::string &commandLine)
+{
+	for (size_t i = 0; i < commandLine.size(); ++i)
+	{
+		if (commandLine[i] != ' ' && (i == 0 || commandLine[i - 1] == ' '))
+		{
+			try
+			{
+				size_t	size = 1;
+				if (i < commandLine.size() - 1 && commandLine[i + 1] != ' ')
+					++size;
+				(this->*(_methods.at(commandLine.substr(i, size))))();
+			}
+			catch(const std::exception& e)
+			{
+				throw UnknownCommand();
+			}
+		}
+	}
+}

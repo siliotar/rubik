@@ -191,6 +191,121 @@ void	Solver::_solve3s1(Cube3 *cube)
 			_swapUpForCross(cube, i - 4, cube->getShapes()[possiblePos[i] - 3]->getFirstNot(Black));
 }
 
+int		_s1getPos(Color mainColor, Color tempColor, int mainPos)
+{
+	int	dPos = mainColor - tempColor;
+	mainPos += dPos;
+	if (mainPos < 0)
+		mainPos += 4;
+	return mainPos % 4;
+}
+
+void	Solver::_solve3s1v2(Cube3 *cube)
+{
+	int	possiblePos[] = {
+		3, 5, 23, 21,
+		1, 11, 19, 9,
+		7, 17, 25, 15
+	};
+	Method	m[] = {
+		&Cube3::rB, &Cube3::L, &Cube3::rR, &Cube3::B,
+		&Cube3::rF, &Cube3::R, &Cube3::rL, &Cube3::F
+	};
+	Color	mainCol = Black;
+	int		mainPos = 0;
+	while (mainCol == Black)
+	{
+		for (int i = 8; i < 12 && mainCol == Black; ++i)
+			if (cube->getShapes()[possiblePos[i]]->_up == White)
+			{
+				mainCol = cube->getShapes()[possiblePos[i]]->getFirstNot(White);
+				mainPos = i % 4;
+			}
+		for (int i = 0; i < 4 && mainCol == Black; ++i)
+		{
+			Shape	*shape = cube->getShapes()[possiblePos[i]];
+			if (shape->hasColor(White))
+			{
+				Color	sides[] = {
+					shape->_left, shape->_back, shape->_right, shape->_front
+				};
+				int	mpos = i * 2;
+				mainCol = shape->getFirstNot(White);
+				mainPos = i;
+				if (sides[i] != White)
+				{
+					++mpos;
+					mainPos = (i + 3) % 4;
+				}
+				_commands.push((cube->*m[mpos])());
+			}
+		}
+		for (int i = 4; i < 8 && mainCol == Black; ++i)
+		{
+			Shape	*shape = cube->getShapes()[possiblePos[i]];
+			if (shape->hasColor(White))
+			{
+				mainCol = shape->getFirstNot(White);
+				mainPos = i - 4;
+				_commands.push((cube->*m[(i - 4) * 2])());
+			}
+		}
+		for (int i = 8; i < 12; ++i)
+		{
+			Shape	*shape = cube->getShapes()[possiblePos[i]];
+			if (shape->hasColor(White))
+			{
+				_commands.push((cube->*m[(i - 8) * 2])());
+				break ;
+			}
+		}
+	}
+	for (int i = 0; i < 12; ++i)
+	{
+		Shape	*shape = cube->getShapes()[possiblePos[i]];
+		if (shape->hasColor(White))
+		{
+			if (i < 4)
+			{
+				Color	sides[] = {
+					shape->_left, shape->_back, shape->_right, shape->_front
+				};
+				int	mpos = i * 2;
+				int	tPos = i;
+				if (sides[i] != White)
+				{
+					++mpos;
+					tPos = (i + 3) % 4;
+				}
+				int rPos = _s1getPos(mainCol, shape->getFirstNot(White), mainPos);
+				int rot = (tPos - rPos + 4) % 4;
+				for (int j = 0; j < rot; ++j)
+				{
+					mainPos = (mainPos + 1) % 4;
+					_commands.push(cube->U());
+				}
+				_commands.push((cube->*m[mpos])());
+			}
+			else if (i < 8)
+			{
+				while (cube->getShapes()[possiblePos[i + 4]]->_up == White)
+				{
+					mainPos = (mainPos + 1) % 4;
+					_commands.push(cube->U());
+				}
+				_commands.push((cube->*m[(i - 4) * 2])());
+			}
+			else if (i % 4 == _s1getPos(mainCol, shape->getFirstNot(White), mainPos) && shape->_up == White)
+				continue ;
+			else
+				_commands.push((cube->*m[(i - 8) * 2])());
+			i = -1;
+		}
+	}
+	while (cube->getShapes()[25]->_front != Green)
+		_commands.push(cube->U());
+}
+
 void	Solver::_rpifpaf(Cube3 *cube, Method m1, Method m2, bool up, bool last)
 {
 	_commands.push((cube->*m1)());
@@ -228,6 +343,9 @@ void	Solver::_solve3s2(Cube3 *cube)
 	Method	rlm[] = {
 		&Cube3::rL, &Cube3::rB, &Cube3::rR, &Cube3::rF
 	};
+	ShapeMethod	sm[] = {
+		&Shape::L, &Shape::F, &Shape::R, &Shape::B
+	};
 	for (int i = 0; i < 8; ++i)
 	{
 		Shape	*shape = cube->getShapes()[possiblePos[i]];
@@ -259,7 +377,15 @@ void	Solver::_solve3s2(Cube3 *cube)
 			else if (possiblePos[i] == rightPos[pos] && shape->_up == White)
 				continue ;
 			else
-				_rpifpaf(cube, m[pos], rm[pos]);
+			{
+
+				Shape	tmp(*shape);
+				(tmp.*sm[pos])();
+				if (tmp._down != White)
+					_rpifpaf(cube, m[pos], rm[pos]);
+				else
+					_lpifpaf(cube, rlm[pos], lm[pos]);
+			}
 			i = -1;
 		}
 	}
@@ -586,6 +712,7 @@ bool	Solver::_s7correctAngles(Cube3 *cube)
 
 void	Solver::_solve3s7(Cube3 *cube)
 {
+	char	dir = 0;
 	if (_s7correctAngles(cube))
 		return ;
 	for (int i = 0; i < 4; ++i)
@@ -593,75 +720,127 @@ void	Solver::_solve3s7(Cube3 *cube)
 		while (cube->getShapes()[20]->_front != cube->getShapes()[19]->_front || \
 				cube->getShapes()[20]->_right != cube->getShapes()[11]->_right || \
 				cube->getShapes()[20]->_down != Yellow)
-			_rpifpaf(cube, &Cube3::R, &Cube3::rR, true);
+		{
+			if (dir == 0)
+				dir = cube->getShapes()[20]->_right == Yellow ? 1 : 2;
+			if (dir == 1)
+				_rpifpaf(cube, &Cube3::R, &Cube3::rR, true);
+			else
+				_lpifpaf(cube, &Cube3::rF, &Cube3::F, true);
+		}
 		_commands.push(cube->D());
 	}
 }
 
-void	Solver::_solve3(Cube3 *cube)
+size_t s1 = 0;
+size_t s2 = 0;
+size_t s3 = 0;
+size_t s4 = 0;
+size_t s5 = 0;
+size_t s6 = 0;
+size_t s7 = 0;
+size_t count = 0;
+
+void	Solver::_solve3(Cube3 *cube, bool print)
 {
 	size_t prev = 0;
 	//	1-st stage (White cross)
-	_solve3s1(cube);
+	_solve3s1v2(cube);
+	++count;
 
-	std::cout << "--------------- Stage 1 ---------------" << std::endl;
-	std::cout << _commands.size() - prev << std::endl;
-	prev = _commands.size();
-	cube->print();
+	if (print)
+	{
+		std::cout << "--------------- Stage 1 ---------------" << std::endl;
+		s1 += _commands.size() - prev;
+		std::cout << "avg = " << (float)s1 / count << std::endl;
+		std::cout << _commands.size() - prev << std::endl;
+		prev = _commands.size();
+		cube->print();
+	}
 
 	//	2-nd stage (First layer)
 	_solve3s2(cube);
 	
-	std::cout << "--------------- Stage 2 ---------------" << std::endl;
-	std::cout << _commands.size() - prev << std::endl;
-	prev = _commands.size();
-	cube->print();
+	if (print)
+	{
+		std::cout << "--------------- Stage 2 ---------------" << std::endl;
+		s2 += _commands.size() - prev;
+		std::cout << "avg = " << (float)s2 / count << std::endl;
+		std::cout << _commands.size() - prev << std::endl;
+		prev = _commands.size();
+		cube->print();
+	}
 
 	//	3-rd stage (Middle layer)
 	_solve3s3(cube);
 	
-	std::cout << "--------------- Stage 3 ---------------" << std::endl;
-	std::cout << _commands.size() - prev << std::endl;
-	prev = _commands.size();
-	cube->print();
+	if (print)
+	{
+		std::cout << "--------------- Stage 3 ---------------" << std::endl;
+		s3 += _commands.size() - prev;
+		std::cout << "avg = " << (float)s3 / count << std::endl;
+		std::cout << _commands.size() - prev << std::endl;
+		prev = _commands.size();
+		cube->print();
+	}
 
 	//	4-th stage (Yellow cross)
 	_solve3s4(cube);
 	
-	std::cout << "--------------- Stage 4 ---------------" << std::endl;
-	std::cout << _commands.size() - prev << std::endl;
-	prev = _commands.size();
-	cube->print();
+	if (print)
+	{
+		std::cout << "--------------- Stage 4 ---------------" << std::endl;
+		s4 += _commands.size() - prev;
+		std::cout << "avg = " << (float)s4 / count << std::endl;
+		std::cout << _commands.size() - prev << std::endl;
+		prev = _commands.size();
+		cube->print();
+	}
 
 	//	5-th stage (Correct yellow cross)
 	_solve3s5(cube);
 	
-	std::cout << "--------------- Stage 5 ---------------" << std::endl;
-	std::cout << _commands.size() - prev << std::endl;
-	prev = _commands.size();
-	cube->print();
+	if (print)
+	{
+		std::cout << "--------------- Stage 5 ---------------" << std::endl;
+		s5 += _commands.size() - prev;
+		std::cout << "avg = " << (float)s5 / count << std::endl;
+		std::cout << _commands.size() - prev << std::endl;
+		prev = _commands.size();
+		cube->print();
+	}
 
 	//	6-th stage (Correct angles in 3-rd layer)
 	_solve3s6(cube);
 	
-	std::cout << "--------------- Stage 6 ---------------" << std::endl;
-	std::cout << _commands.size() - prev << std::endl;
-	prev = _commands.size();
-	cube->print();
+	if (print)
+	{
+		std::cout << "--------------- Stage 6 ---------------" << std::endl;
+		s6 += _commands.size() - prev;
+		std::cout << "avg = " << (float)s6 / count << std::endl;
+		std::cout << _commands.size() - prev << std::endl;
+		prev = _commands.size();
+		cube->print();
+	}
 
 	//	7-th stage (Final)
 	_solve3s7(cube);
 	
-	std::cout << "--------------- Stage 7 ---------------" << std::endl;
-	std::cout << _commands.size() - prev << std::endl;
-	prev = _commands.size();
-	cube->print();
+	if (print)
+	{
+		std::cout << "--------------- Stage 7 ---------------" << std::endl;
+		s7 += _commands.size() - prev;
+		std::cout << "avg = " << (float)s7 / count << std::endl;
+		std::cout << _commands.size() - prev << std::endl;
+		prev = _commands.size();
+		cube->print();
+	}
 }
 
-Commands	&Solver::solve(Cube *cube)
+Commands	&Solver::solve(Cube *cube, bool print)
 {
 	_commands.clear();
 	if (dynamic_cast<Cube3*>(cube))
-		_solve3(dynamic_cast<Cube3*>(cube));
+		_solve3(dynamic_cast<Cube3*>(cube), print);
 	return _commands;
 }

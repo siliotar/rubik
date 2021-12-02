@@ -146,4 +146,6 @@ void	Cube::shuffle(size_t count)
 
 void	Cube::exec(const std::string &command) { (void)command; throw UnknownCommand(); }
 
-Shape	**	Cube::getShapes() const { return _shapes; }
+void	Cube::execline(const std::string &command) { (void)command; throw UnknownCommand(); }
+
+Shape	**Cube::getShapes() const { return _shapes; }
