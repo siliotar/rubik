@@ -68,6 +68,7 @@ void	Cube3::execline(const std::string &commandLine)
 				if (i < commandLine.size() - 1 && commandLine[i + 1] != ' ')
 					++size;
 				(this->*(_methods.at(commandLine.substr(i, size))))();
+				i += size;
 			}
 			catch(const std::exception& e)
 			{

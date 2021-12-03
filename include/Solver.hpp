@@ -14,11 +14,21 @@ class Solver
 	private:
 		typedef std::string (Cube3::*Method)();
 		typedef void (Shape::*ShapeMethod)();
+
 		Commands	_commands;
+		size_t		_s1;
+		size_t		_s2;
+		size_t		_s3;
+		size_t		_s4;
+		size_t		_s5;
+		size_t		_s6;
+		size_t		_s7;
+		size_t		_count;
+
 		Solver(const Solver& copy);
 		Solver	&operator=(const Solver& other);
 
-		void	_solve3(Cube3 *cube, bool print);
+		void	_solve3beginner(Cube3 *cube, bool print);
 		void	_solve3s1(Cube3 *cube);
 		void	_solve3s1v2(Cube3 *cube);
 		void	_solve3s2(Cube3 *cube);
@@ -38,6 +48,11 @@ class Solver
 		bool	_s6correctAngles(Cube3 *cube);
 		bool	_s7correctAngle(Cube3 *cube, int pos);
 		bool	_s7correctAngles(Cube3 *cube);
+		void	_solve3advanced(Cube3 *cube, bool print);
+		void	_solve3advanceds2(Cube3 *cube);
+		void	_solve3advanceds3(Cube3 *cube);
+		void	_solve3advanceds4(Cube3 *cube);
+		void	_useFormula(Cube3 *cube, const std::string &formula, int idx);
 	public:
 		Solver();
 		virtual ~Solver();

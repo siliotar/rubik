@@ -1,6 +1,15 @@
 #include "Solver.hpp"
 
-Solver::Solver() {}
+Solver::Solver() :
+_s1(0),
+_s2(0),
+_s3(0),
+_s4(0),
+_s5(0),
+_s6(0),
+_s7(0),
+_count(0)
+{}
 
 Solver::~Solver() {}
 
@@ -732,27 +741,18 @@ void	Solver::_solve3s7(Cube3 *cube)
 	}
 }
 
-size_t s1 = 0;
-size_t s2 = 0;
-size_t s3 = 0;
-size_t s4 = 0;
-size_t s5 = 0;
-size_t s6 = 0;
-size_t s7 = 0;
-size_t count = 0;
-
-void	Solver::_solve3(Cube3 *cube, bool print)
+void	Solver::_solve3beginner(Cube3 *cube, bool print)
 {
 	size_t prev = 0;
 	//	1-st stage (White cross)
 	_solve3s1v2(cube);
-	++count;
+	++_count;
 
 	if (print)
 	{
 		std::cout << "--------------- Stage 1 ---------------" << std::endl;
-		s1 += _commands.size() - prev;
-		std::cout << "avg = " << (float)s1 / count << std::endl;
+		_s1 += _commands.size() - prev;
+		std::cout << "avg = " << (float)_s1 / _count << std::endl;
 		std::cout << _commands.size() - prev << std::endl;
 		prev = _commands.size();
 		cube->print();
@@ -764,8 +764,8 @@ void	Solver::_solve3(Cube3 *cube, bool print)
 	if (print)
 	{
 		std::cout << "--------------- Stage 2 ---------------" << std::endl;
-		s2 += _commands.size() - prev;
-		std::cout << "avg = " << (float)s2 / count << std::endl;
+		_s2 += _commands.size() - prev;
+		std::cout << "avg = " << (float)_s2 / _count << std::endl;
 		std::cout << _commands.size() - prev << std::endl;
 		prev = _commands.size();
 		cube->print();
@@ -777,8 +777,8 @@ void	Solver::_solve3(Cube3 *cube, bool print)
 	if (print)
 	{
 		std::cout << "--------------- Stage 3 ---------------" << std::endl;
-		s3 += _commands.size() - prev;
-		std::cout << "avg = " << (float)s3 / count << std::endl;
+		_s3 += _commands.size() - prev;
+		std::cout << "avg = " << (float)_s3 / _count << std::endl;
 		std::cout << _commands.size() - prev << std::endl;
 		prev = _commands.size();
 		cube->print();
@@ -790,8 +790,8 @@ void	Solver::_solve3(Cube3 *cube, bool print)
 	if (print)
 	{
 		std::cout << "--------------- Stage 4 ---------------" << std::endl;
-		s4 += _commands.size() - prev;
-		std::cout << "avg = " << (float)s4 / count << std::endl;
+		_s4 += _commands.size() - prev;
+		std::cout << "avg = " << (float)_s4 / _count << std::endl;
 		std::cout << _commands.size() - prev << std::endl;
 		prev = _commands.size();
 		cube->print();
@@ -803,8 +803,8 @@ void	Solver::_solve3(Cube3 *cube, bool print)
 	if (print)
 	{
 		std::cout << "--------------- Stage 5 ---------------" << std::endl;
-		s5 += _commands.size() - prev;
-		std::cout << "avg = " << (float)s5 / count << std::endl;
+		_s5 += _commands.size() - prev;
+		std::cout << "avg = " << (float)_s5 / _count << std::endl;
 		std::cout << _commands.size() - prev << std::endl;
 		prev = _commands.size();
 		cube->print();
@@ -816,8 +816,8 @@ void	Solver::_solve3(Cube3 *cube, bool print)
 	if (print)
 	{
 		std::cout << "--------------- Stage 6 ---------------" << std::endl;
-		s6 += _commands.size() - prev;
-		std::cout << "avg = " << (float)s6 / count << std::endl;
+		_s6 += _commands.size() - prev;
+		std::cout << "avg = " << (float)_s6 / _count << std::endl;
 		std::cout << _commands.size() - prev << std::endl;
 		prev = _commands.size();
 		cube->print();
@@ -829,8 +829,177 @@ void	Solver::_solve3(Cube3 *cube, bool print)
 	if (print)
 	{
 		std::cout << "--------------- Stage 7 ---------------" << std::endl;
-		s7 += _commands.size() - prev;
-		std::cout << "avg = " << (float)s7 / count << std::endl;
+		_s7 += _commands.size() - prev;
+		std::cout << "avg = " << (float)_s7 / _count << std::endl;
+		std::cout << _commands.size() - prev << std::endl;
+		prev = _commands.size();
+		cube->print();
+	}
+}
+
+void	Solver::_useFormula(Cube3 *cube, const std::string &formula, int idx)
+{
+	Method	f[] = {
+		&Cube3::B, &Cube3::R, &Cube3::F, &Cube3::L
+	};
+	Method	rf[] = {
+		&Cube3::rB, &Cube3::rR, &Cube3::rF, &Cube3::rL
+	};
+	Method	r[] = {
+		&Cube3::L, &Cube3::B, &Cube3::R, &Cube3::F
+	};
+	Method	rr[] = {
+		&Cube3::rL, &Cube3::rB, &Cube3::rR, &Cube3::rF
+	};
+	for (size_t i = 0; i < formula.size(); ++i)
+	{
+		if (formula[i] != ' ' && (i == 0 || formula[i - 1] == ' '))
+		{
+			size_t	size = 1;
+			if (i < formula.size() - 1 && formula[i + 1] != ' ')
+				++size;
+			std::string	cmd = formula.substr(i, size);
+			if (cmd == "F")
+				_commands.push((cube->*f[idx])());
+			else if (cmd == "F'")
+				_commands.push((cube->*rf[idx])());
+			else if (cmd == "R")
+				_commands.push((cube->*r[idx])());
+			else if (cmd == "R'")
+				_commands.push((cube->*rr[idx])());
+			else if (cmd == "U")
+				_commands.push(cube->U());
+			else if (cmd == "U'")
+				_commands.push(cube->rU());
+			i += size;
+		}
+	}
+}
+
+void	Solver::_solve3advanceds2(Cube3 *cube)
+{
+	static const std::string	f2lformulas[] = {
+		"U R U R' U' F' U' F",
+		"U' F' U F U R U' R'",
+		"U R U' R'",
+		"F R' F' R",
+		"R U R'",
+		"F' U' F",
+		"U' R U U R' U U R U' R'",
+		"U F' U' F U U F' U F",
+		"U' R U R' U U R U' R'",
+		"U F' U U F U U F' U F",
+		"U' R U' R' U F' U' F",
+		"U' R U R' U R U R'",
+		"U F' U F U' F' U' F",
+		"U F' U U F U' R U R'",
+		"U' R U U R' U F' U' F",
+		"U' R U' R' U R U R'",
+		"F' U F U U R U R'",
+		"R U' R' U U F' U' F",
+		"R U U R' U' R U R'",
+		"F' U U F U F' U' F",
+		"U R U U R' U R U' R'",
+		"R U' R' U U R U R'",
+		"U' F' U U F U' F' U F",
+		"U U F' U' F U' F' U F",
+		"R U R' U U R U R' U' R U R'",
+		"F U R U' R' F' R U' R'",
+		"F' U' F U F' U' F",
+		"R U' R' U R U' R'",
+		"R U R' U' F R' F' R",
+		"R U R' U' R U R'",
+		"R U' R' F' U U F",
+		"U' R U R' U F' U' F",
+		"R U R' U' R U R' U' R U R'",
+		"U F' U' F U' R U R'",
+		"U' R U' R' U U R U' R'",
+		"U R U R' U U R U R'",
+		"U R U R' U U R U R'",
+		"R U F R U R' U' F' R'",
+		"R F U R U' R' F' U' R'",
+		"R U U R U R' U R U U R R",
+		"R U R' U' R U U R' U' R U R'",
+		"R U' R' U F' U U F U U' F' U F"
+	};
+	Color		finalColors[] = {
+		Blue, Orange,
+		Red, Blue,
+		Green, Red,
+		Orange, Green
+	};
+	int		finalPos[] = {
+		0, 3, 2, 5, 20, 23, 18, 21
+	};
+	for (int i = 0; i < 4; ++i)
+	{
+		Shape	**shapes = cube->getShapes();
+		if (shapes[finalPos[i * 2]]->equals(Yellow, finalColors[i * 2], finalColors[i * 2 + 1]) && \
+			shapes[finalPos[i * 2]]->horisontalEqual(*shapes[finalPos[i * 2 + 1]]))
+			continue ;
+		//	get all pieces
+		//	use formula
+	}
+}
+
+void	Solver::_solve3advanceds3(Cube3 *cube)
+{ (void)cube; }
+
+void	Solver::_solve3advanceds4(Cube3 *cube)
+{ (void)cube; }
+
+
+void	Solver::_solve3advanced(Cube3 *cube, bool print)
+{
+	size_t prev = 0;
+	//	1-st stage (White cross)
+	_solve3s1v2(cube);
+	++_count;
+
+	if (print)
+	{
+		std::cout << "--------------- Stage 1 ---------------" << std::endl;
+		_s1 += _commands.size() - prev;
+		std::cout << "avg = " << (float)_s1 / _count << std::endl;
+		std::cout << _commands.size() - prev << std::endl;
+		prev = _commands.size();
+		cube->print();
+	}
+
+	//	2-nd stage (First two layers - F2L)
+	_solve3advanceds2(cube);
+	
+	if (print)
+	{
+		std::cout << "--------------- Stage 2 ---------------" << std::endl;
+		_s2 += _commands.size() - prev;
+		std::cout << "avg = " << (float)_s2 / _count << std::endl;
+		std::cout << _commands.size() - prev << std::endl;
+		prev = _commands.size();
+		cube->print();
+	}
+
+	//	3-rd stage (Middle layer)
+	_solve3advanceds3(cube);
+	
+	if (print)
+	{
+		std::cout << "--------------- Stage 3 ---------------" << std::endl;
+		_s3 += _commands.size() - prev;
+		std::cout << "avg = " << (float)_s3 / _count << std::endl;
+		std::cout << _commands.size() - prev << std::endl;
+		prev = _commands.size();
+		cube->print();
+	}
+
+	//	4-th stage (Yellow cross)
+	_solve3advanceds4(cube);
+	
+	if (print)
+	{
+		std::cout << "--------------- Stage 4 ---------------" << std::endl;
+		_s4 += _commands.size() - prev;
+		std::cout << "avg = " << (float)_s4 / _count << std::endl;
 		std::cout << _commands.size() - prev << std::endl;
 		prev = _commands.size();
 		cube->print();
@@ -841,6 +1010,6 @@ Commands	&Solver::solve(Cube *cube, bool print)
 {
 	_commands.clear();
 	if (dynamic_cast<Cube3*>(cube))
-		_solve3(dynamic_cast<Cube3*>(cube), print);
+		_solve3beginner(dynamic_cast<Cube3*>(cube), print);
 	return _commands;
 }
