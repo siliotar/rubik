@@ -94,8 +94,8 @@ int	main()
 {
 	srand(time(0));
 	Cube3	c;
-	// test8(c);
-	multitest(c, 3000);
+	test5(c);
+	// multitest(c, 3000);
 	return 0;
 	// while (1)
 	// {

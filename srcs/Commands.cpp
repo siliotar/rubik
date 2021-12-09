@@ -32,6 +32,21 @@ void	Commands::push(std::string command)
 	_commands.push_back(command);
 }
 
+void	Commands::pushLine(const std::string &commandLine)
+{
+	
+	for (size_t i = 0; i < commandLine.size(); ++i)
+	{
+		if (commandLine[i] != ' ' && (i == 0 || commandLine[i - 1] == ' '))
+		{
+			size_t	size = 1;
+			if (i < commandLine.size() - 1 && commandLine[i + 1] != ' ')
+				++size;
+			push(commandLine.substr(i, size));
+		}
+	}
+}
+
 std::string	Commands::str() const
 {
 	std::stringstream	result;
@@ -49,8 +64,13 @@ void	Commands::clear()
 {
 	_commands.clear();
 }
-
+#include <iostream>
 size_t	Commands::size() const
 {
-	return _commands.size();
+	size_t	size = 0;
+	for (size_t i = 0; i < _commands.size(); ++i)
+		if (_commands[i] != "x" && _commands[i] != "x'" && _commands[i] != "y" && \
+			_commands[i] != "y'" && _commands[i] != "z" && _commands[i] != "z'")
+			++size;
+	return size;
 }

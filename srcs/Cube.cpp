@@ -4,7 +4,7 @@ Cube::Cube(int size) : _size(size)
 {
 	if (size < 2)
 		throw SizeTooLow();
-	if (size > 100)
+	if (size > 10)
 		throw SizeTooHigh();
 	_shapes = new Shape *[_size * _size * _size];
 	for (int z = 0; z < _size; ++z)
@@ -27,7 +27,7 @@ void	Cube::rotateFace(int x, int y, int z, mat3 rotmat, Rotation rot)
 	for (int tz = 0; tz < _size; ++tz)
 		for (int ty = 0; ty < _size; ++ty)
 			for (int tx = 0; tx < _size; ++tx)
-				if (tx == x || ty == y || tz == z)
+				if (tx == x || ty == y || tz == z || (x == -1 && y == -1 && z == -1))
 				{
 					vec3	newPos = vec3((float)tx - fsize / 2 + 0.5f, (float)ty - fsize / 2 + 0.5f, (float)tz - fsize / 2 + 0.5f) * rotmat;
 					res[tx + ty * _size + tz * _size * _size] = \
@@ -36,7 +36,7 @@ void	Cube::rotateFace(int x, int y, int z, mat3 rotmat, Rotation rot)
 	for (int tz = 0; tz < _size; ++tz)
 		for (int ty = 0; ty < _size; ++ty)
 			for (int tx = 0; tx < _size; ++tx)
-				if (tx == x || ty == y || tz == z)
+				if (tx == x || ty == y || tz == z || (x == -1 && y == -1 && z == -1))
 				{
 					_shapes[tx + ty * _size + tz * _size * _size] = res[tx + ty * _size + tz * _size * _size];
 					switch (rot)
@@ -149,3 +149,55 @@ void	Cube::exec(const std::string &command) { (void)command; throw UnknownComman
 void	Cube::execline(const std::string &command) { (void)command; throw UnknownCommand(); }
 
 Shape	**Cube::getShapes() const { return _shapes; }
+
+std::string	Cube::x() { rotateFace(-1, -1, -1, getXrotmat(M_PI_2), Brot); return "x"; }
+
+std::string	Cube::y() { rotateFace(-1, -1, -1, getYrotmat(M_PI_2), Lr); return "y"; }
+
+std::string	Cube::z() { rotateFace(-1, -1, -1, getZrotmat(M_PI_2), Lrot); return "z"; }
+
+std::string	Cube::rx() { rotateFace(-1, -1, -1, getXrotmat(-M_PI_2), Frot); return "x'"; }
+
+std::string	Cube::ry() { rotateFace(-1, -1, -1, getYrotmat(-M_PI_2), Rr); return "y'"; }
+
+std::string	Cube::rz() { rotateFace(-1, -1, -1, getZrotmat(-M_PI_2), Rrot); return "z'"; }
+
+std::string	Cube::resetTransform()
+{
+	std::stringstream	ss;
+	size_t	u = _size / 2  + (_size - 1) * _size + _size / 2 * _size * _size;
+	size_t	l = _size / 2 * _size + _size / 2 * _size * _size;
+	size_t	f = _size / 2 + _size / 2 * _size + (_size - 1) * _size * _size;
+	size_t	r = (_size - 1) + _size / 2 * _size + _size / 2 * _size * _size;
+	size_t	b = _size / 2 + _size / 2 * _size;
+	size_t	d = _size / 2 + _size / 2 * _size * _size;
+	if (_shapes[f]->_front == White && _shapes[u]->_up == Green)
+		return "";
+	if (_shapes[b]->_back == White)
+	{
+		ss << x() << " ";
+		ss << x();
+	}
+	else if (_shapes[d]->_down == Green)
+		ss << rx();
+	else if (_shapes[l]->_left == Green)
+		ss << y();
+	else if (_shapes[r]->_right == Green)
+		ss << ry();
+	else if (_shapes[u]->_up == Green)
+		ss << x();
+	if (_shapes[f]->_front == White)
+		return ss.str();
+	if (ss.str().size() > 0)
+		ss << " ";
+	if (_shapes[l]->_left == White)
+		ss << rz();
+	else if (_shapes[r]->_right == White)
+		ss << z();
+	else if (_shapes[d]->_down == White)
+	{
+		ss << z() << " ";
+		ss << z();
+	}
+	return ss.str();
+}

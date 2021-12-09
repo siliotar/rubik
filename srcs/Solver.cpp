@@ -920,26 +920,249 @@ void	Solver::_solve3advanceds2(Cube3 *cube)
 		"R F U R U' R' F' U' R'",
 		"R U U R U R' U R U U R R",
 		"R U R' U' R U U R' U' R U R'",
-		"R U' R' U F' U U F U U' F' U F"
+		"R U' R' U F' U U F U U F' U F"
 	};
-	Color		finalColors[] = {
-		Blue, Orange,
-		Red, Blue,
-		Green, Red,
-		Orange, Green
+	int		upperEdges[] = {
+		7, 17, 25, 15
 	};
-	int		finalPos[] = {
-		0, 3, 2, 5, 20, 23, 18, 21
+	int		middleEdges[] = {
+		3, 5, 23, 21
 	};
+	int		upperCorners[] = {
+		6, 8, 26, 24
+	};
+	int		downCorners[] = {
+		0, 2, 23, 18
+	};
+
+	_commands.push(cube->z());
+	_commands.push(cube->z());
 	for (int i = 0; i < 4; ++i)
 	{
 		Shape	**shapes = cube->getShapes();
-		if (shapes[finalPos[i * 2]]->equals(Yellow, finalColors[i * 2], finalColors[i * 2 + 1]) && \
-			shapes[finalPos[i * 2]]->horisontalEqual(*shapes[finalPos[i * 2 + 1]]))
+		Color	front = shapes[22]->_front;
+		Color	right = shapes[14]->_right;
+		if (shapes[20]->_down == White && shapes[20]->_right == right && \
+		shapes[20]->_front == front && shapes[23]->horisontalEqual(*shapes[20]))
+		{
+			_commands.push(cube->y());
 			continue ;
-		//	get all pieces
-		//	use formula
+		}
+		bool	edge = false, corner = false;
+		if (shapes[20]->equals(White, front, right))
+			corner = true;
+		for (int j = 0; j < 4 && !corner; ++j)
+			if (shapes[upperCorners[j]]->equals(White, front, right))
+				corner = true;
+		if (!corner)
+			for (int j = 0; j < 4; ++j)
+				if (shapes[downCorners[j]]->equals(White, front, right))
+					_useFormula(cube, "R U R'", j);
+		shapes = cube->getShapes();
+		if (shapes[23]->equals(front, right))
+			edge = true;
+		for (int j = 0; j < 4 && !edge; ++j)
+			if (shapes[upperEdges[j]]->equals(front, right))
+				edge = true;
+		if (!edge)
+			for (int j = 0; j < 4; ++j)
+				if (shapes[middleEdges[j]]->equals(front, right))
+				{
+					if (shapes[upperCorners[j]]->equals(White, front, right))
+						_useFormula(cube, "R U' R'", j);
+					else
+						_useFormula(cube, "R U R'", j);
+				}
+		int	edgePos = 23, cornerPos = 26;
+		if (cube->getShapes()[20]->equals(White, front, right))
+			cornerPos = 20;
+		else
+			while (!cube->getShapes()[26]->equals(White, front, right))
+				_commands.push(cube->U());
+		if (!cube->getShapes()[23]->equals(front, right))
+			for (int j = 0; j < 4 && edgePos == 23; ++j)
+				if (cube->getShapes()[upperEdges[j]]->equals(front, right))
+					edgePos = upperEdges[j];
+		if (cornerPos == 20)
+		{
+			bool	r = edgePos != 23 && cube->getShapes()[edgePos]->_up == right;
+			if (edgePos != 23)
+			{
+				if (cube->getShapes()[edgePos]->_up == right)
+					while (!cube->getShapes()[25]->equals(front, right))
+						_commands.push(cube->U());
+				else
+					while (!cube->getShapes()[17]->equals(front, right))
+						_commands.push(cube->U());
+			}
+			if (cube->getShapes()[20]->_front == front)
+			{
+				if (edgePos == 23)
+					_useFormula(cube, f2lformulas[41]);
+				else
+				{
+					if (r)
+						_useFormula(cube, f2lformulas[0]);
+					else
+						_useFormula(cube, f2lformulas[1]);
+				}
+			}
+			else if (cube->getShapes()[20]->_front == White)
+			{
+				if (edgePos == 23)
+				{
+					if (cube->getShapes()[23]->_front == right)
+						_useFormula(cube, f2lformulas[38]);
+					else
+						_useFormula(cube, f2lformulas[40]);
+				}
+				else
+				{
+					if (r)
+						_useFormula(cube, f2lformulas[26]);
+					else
+						_useFormula(cube, f2lformulas[27]);
+				}
+			}
+			else if (cube->getShapes()[20]->_right == White)
+			{
+				if (edgePos == 23)
+				{
+					if (cube->getShapes()[23]->_front == right)
+						_useFormula(cube, f2lformulas[37]);
+					else
+						_useFormula(cube, f2lformulas[39]);
+				}
+				else
+				{
+					if (r)
+						_useFormula(cube, f2lformulas[28]);
+					else
+						_useFormula(cube, f2lformulas[29]);
+				}
+			}
+		}
+		else
+		{
+			if (cube->getShapes()[26]->_front == White)
+			{
+				if (edgePos == 17)
+				{
+					if (cube->getShapes()[17]->_right == right)
+						_useFormula(cube, f2lformulas[2]);
+					else
+						_useFormula(cube, f2lformulas[14]);
+				}
+				else if (edgePos == 25)
+				{
+					if (cube->getShapes()[25]->_front == front)
+						_useFormula(cube, f2lformulas[12]);
+					else
+						_useFormula(cube, f2lformulas[16]);
+				}
+				else if (edgePos == 15)
+				{
+					if (cube->getShapes()[15]->_up == right)
+						_useFormula(cube, f2lformulas[5]);
+					else
+						_useFormula(cube, f2lformulas[6]);
+				}
+				else if (edgePos == 7)
+				{
+					if (cube->getShapes()[7]->_up == front)
+						_useFormula(cube, f2lformulas[8]);
+					else
+						_useFormula(cube, f2lformulas[10]);
+				}
+				else
+				{
+					if (cube->getShapes()[23]->_front == front)
+						_useFormula(cube, f2lformulas[34]);
+					else
+						_useFormula(cube, f2lformulas[31]);
+				}
+			}
+			else if (cube->getShapes()[26]->_right == White)
+			{
+				if (edgePos == 17)
+				{
+					if (cube->getShapes()[17]->_right == right)
+						_useFormula(cube, f2lformulas[15]);
+					else
+						_useFormula(cube, f2lformulas[17]);
+				}
+				else if (edgePos == 25)
+				{
+					if (cube->getShapes()[25]->_front == front)
+						_useFormula(cube, f2lformulas[3]);
+					else
+						_useFormula(cube, f2lformulas[13]);
+				}
+				else if (edgePos == 15)
+				{
+					if (cube->getShapes()[15]->_up == right)
+						_useFormula(cube, f2lformulas[7]);
+					else
+						_useFormula(cube, f2lformulas[11]);
+				}
+				else if (edgePos == 7)
+				{
+					if (cube->getShapes()[7]->_up == front)
+						_useFormula(cube, f2lformulas[4]);
+					else
+						_useFormula(cube, f2lformulas[9]);
+				}
+				else
+				{
+					if (cube->getShapes()[23]->_front == front)
+						_useFormula(cube, f2lformulas[35]);
+					else
+						_useFormula(cube, f2lformulas[33]);
+				}
+			}
+			else
+			{
+				if (edgePos == 17)
+				{
+					if (cube->getShapes()[17]->_right == right)
+						_useFormula(cube, f2lformulas[18]);
+					else
+						_useFormula(cube, f2lformulas[25]);
+				}
+				else if (edgePos == 25)
+				{
+					if (cube->getShapes()[25]->_front == front)
+						_useFormula(cube, f2lformulas[19]);
+					else
+						_useFormula(cube, f2lformulas[24]);
+				}
+				else if (edgePos == 15)
+				{
+					if (cube->getShapes()[15]->_up == right)
+						_useFormula(cube, f2lformulas[22]);
+					else
+						_useFormula(cube, f2lformulas[21]);
+				}
+				else if (edgePos == 7)
+				{
+					if (cube->getShapes()[7]->_up == front)
+						_useFormula(cube, f2lformulas[20]);
+					else
+						_useFormula(cube, f2lformulas[23]);
+				}
+				else
+				{
+					if (cube->getShapes()[23]->_front == front)
+						_useFormula(cube, f2lformulas[32]);
+					else
+						_useFormula(cube, f2lformulas[30]);
+				}
+			}
+		}
+		_commands.push(cube->y());
 	}
+	_commands.push(cube->rz());
+	_commands.push(cube->rz());
 }
 
 void	Solver::_solve3advanceds3(Cube3 *cube)
@@ -948,12 +1171,12 @@ void	Solver::_solve3advanceds3(Cube3 *cube)
 void	Solver::_solve3advanceds4(Cube3 *cube)
 { (void)cube; }
 
-
 void	Solver::_solve3advanced(Cube3 *cube, bool print)
 {
 	size_t prev = 0;
 	//	1-st stage (White cross)
 	_solve3s1v2(cube);
+	// _solve3s2(cube);
 	++_count;
 
 	if (print)
@@ -1010,6 +1233,6 @@ Commands	&Solver::solve(Cube *cube, bool print)
 {
 	_commands.clear();
 	if (dynamic_cast<Cube3*>(cube))
-		_solve3beginner(dynamic_cast<Cube3*>(cube), print);
+		_solve3advanced(dynamic_cast<Cube3*>(cube), print);
 	return _commands;
 }

@@ -8,6 +8,7 @@ class Cube;
 #include <map>
 #include <cstdlib>
 #include <ctime>
+#include <sstream>
 #include "Color.hpp"
 #include "Shape.hpp"
 #include "mat3.hpp"
@@ -83,5 +84,12 @@ class Cube
 		virtual void	shuffle(size_t count);
 		virtual	void	exec(const std::string &command);
 		virtual	void	execline(const std::string &commandLine);
+		std::string	x();
+		std::string	y();
+		std::string	z();
+		std::string	rx();
+		std::string	ry();
+		std::string	rz();
+		std::string	resetTransform();
 		Shape		**getShapes() const;
 };

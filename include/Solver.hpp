@@ -52,7 +52,7 @@ class Solver
 		void	_solve3advanceds2(Cube3 *cube);
 		void	_solve3advanceds3(Cube3 *cube);
 		void	_solve3advanceds4(Cube3 *cube);
-		void	_useFormula(Cube3 *cube, const std::string &formula, int idx);
+		void	_useFormula(Cube3 *cube, const std::string &formula, int idx = 2);
 	public:
 		Solver();
 		virtual ~Solver();
