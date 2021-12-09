@@ -173,7 +173,7 @@ std::string	Cube::resetTransform()
 	size_t	d = _size / 2 + _size / 2 * _size * _size;
 	if (_shapes[f]->_front == White && _shapes[u]->_up == Green)
 		return "";
-	if (_shapes[b]->_back == White)
+	if (_shapes[b]->_back == Green)
 	{
 		ss << x() << " ";
 		ss << x();
@@ -200,4 +200,37 @@ std::string	Cube::resetTransform()
 		ss << z();
 	}
 	return ss.str();
+}
+
+bool	Cube::assembled() const
+{
+	Color	l = _shapes[_size / 2 * _size + _size / 2 * _size * _size]->_left;
+	Color	r = _shapes[(_size - 1) + _size / 2 * _size + _size / 2 * _size * _size]->_right;
+	Color	d = _shapes[_size / 2 + _size / 2 * _size * _size]->_down;
+	Color	u = _shapes[_size / 2 + (_size - 1) * _size + _size / 2 * _size * _size]->_up;
+	Color	b = _shapes[_size / 2 + _size / 2 * _size]->_back;
+	Color	f = _shapes[_size / 2 + _size / 2 * _size + (_size - 1) * _size * _size]->_front;
+	for (int i = 0; i < _size; ++i)
+	{
+		for (int j = 0; j < _size; ++j)
+		{
+			for (int k = 0; k < _size; ++k)
+			{
+				Shape	*shape = _shapes[i + j * _size + k * _size * _size];
+				if (i == 0 && shape->_left != l)
+					return false;
+				if (i == _size - 1 && shape->_right != r)
+					return false;
+				if (j == 0 && shape->_down != d)
+					return false;
+				if (j == _size - 1 && shape->_up != u)
+					return false;
+				if (k == 0 && shape->_back != b)
+					return false;
+				if (k == _size - 1 && shape->_front != f)
+					return false;
+			}
+		}
+	}
+	return true;
 }

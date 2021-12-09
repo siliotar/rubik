@@ -92,4 +92,5 @@ class Cube
 		std::string	rz();
 		std::string	resetTransform();
 		Shape		**getShapes() const;
+		bool		assembled() const;
 };

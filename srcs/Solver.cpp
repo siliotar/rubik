@@ -845,11 +845,23 @@ void	Solver::_useFormula(Cube3 *cube, const std::string &formula, int idx)
 	Method	rf[] = {
 		&Cube3::rB, &Cube3::rR, &Cube3::rF, &Cube3::rL
 	};
+	Method	b[] = {
+		&Cube3::F, &Cube3::L, &Cube3::B, &Cube3::R
+	};
+	Method	rb[] = {
+		&Cube3::rF, &Cube3::rL, &Cube3::rB, &Cube3::rR
+	};
 	Method	r[] = {
 		&Cube3::L, &Cube3::B, &Cube3::R, &Cube3::F
 	};
 	Method	rr[] = {
 		&Cube3::rL, &Cube3::rB, &Cube3::rR, &Cube3::rF
+	};
+	Method	l[] = {
+		&Cube3::R, &Cube3::F, &Cube3::L, &Cube3::B
+	};
+	Method	rl[] = {
+		&Cube3::rR, &Cube3::rF, &Cube3::rL, &Cube3::rB
 	};
 	for (size_t i = 0; i < formula.size(); ++i)
 	{
@@ -863,14 +875,26 @@ void	Solver::_useFormula(Cube3 *cube, const std::string &formula, int idx)
 				_commands.push((cube->*f[idx])());
 			else if (cmd == "F'")
 				_commands.push((cube->*rf[idx])());
+			else if (cmd == "B")
+				_commands.push((cube->*b[idx])());
+			else if (cmd == "B'")
+				_commands.push((cube->*rb[idx])());
 			else if (cmd == "R")
 				_commands.push((cube->*r[idx])());
 			else if (cmd == "R'")
 				_commands.push((cube->*rr[idx])());
+			else if (cmd == "L")
+				_commands.push((cube->*l[idx])());
+			else if (cmd == "L'")
+				_commands.push((cube->*rl[idx])());
 			else if (cmd == "U")
 				_commands.push(cube->U());
 			else if (cmd == "U'")
 				_commands.push(cube->rU());
+			else if (cmd == "D")
+				_commands.push(cube->D());
+			else if (cmd == "D'")
+				_commands.push(cube->rD());
 			i += size;
 		}
 	}
@@ -1166,17 +1190,375 @@ void	Solver::_solve3advanceds2(Cube3 *cube)
 }
 
 void	Solver::_solve3advanceds3(Cube3 *cube)
-{ (void)cube; }
+{
+	Shape	**shapes = cube->getShapes();
+	if (shapes[6]->_up == Yellow && shapes[7]->_up == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_up == Yellow && shapes[26]->_up == Yellow)
+		return ;
+	else if (shapes[6]->_back == Yellow && shapes[7]->_up == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_up == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "R U R' U R U U R'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_up == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_up == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "R U U R' U' R U' R'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_up == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_up == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "R U U R R U' R R U' R R U U R");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_up == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_up == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "R R D R' U U R D' R' U U R'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_up == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_up == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "R U U R' U' R U R' U' R U' R'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_up == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_up == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "L F R' F' L' F R F'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_up == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_up == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "F' L F R' F' L' F R");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "R U R' U' L R' F R F' L'");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_up == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "L F R' F' L' R U R U' R'");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "L' R B R B R' B' L R' R' L F R F' L'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "F R U R' U' F'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "R U R' U' R' F R F'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_back == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "R U U R R F R F' U U R' F R F'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_back == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "L' B' L U U R' U U R U U L' B L");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_back == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "L' R R B R' B L U U L' B R' L");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_back == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "L' R B' L U U L' B' R B' R R L");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "L' R B R B R' B' L R R F R F'");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "L F R' F R F F L L B' R B' R' B B L");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "R U R' U R' F R F' U U R' F R F'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_back == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "F U R U' R' U R U' R' F'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_back == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "R' F R U R U' R R F' R R U' R' U R U R'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_back == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "L' B' L U' R' U R U' R' U R L' B L");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_back == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "F' L' U' L U' F U F' U F");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "L F L' R U R' U' L F' L'");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "R' F' R L' U' L U R' F R");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "R B' R' U' R B R' B' U B");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "L' B L U L' B' L B U' B'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_back == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "R U R R U' R' F R U R U' F'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_back == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "B' U' B' R B R' U B");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "R' F R U R' U' F' U R");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "L F' L' U' L U F U' L'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_up == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "L F F R' F' R F' L'");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_up == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "R' F F L F L' F R");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_up == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "L U U L L B L B' L U U L'");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_up == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "F R' F' R U R U' R'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_up == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "R U R' U R U' R' U' R' F R F'");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_up == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "L' U' L U' L' U L U L F' L' F");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_up == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "R U R' U' R' F R R U R' U' F'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_up == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "L U L' U L' B L B' L U U L'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_up == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "L F R' F R F F L'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_up == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "R' F' L F' L' F F R");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_up == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "B L U L' U' B' U B L U L' U' B'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_up == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "L R' F R F R' F R F F R' F L' R");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_up == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "B' U' R' U R B");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_up == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "B U L U' L' B'");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_up == Yellow && shapes[25]->_up == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "L' U' B U L U' L' B' L");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_up == Yellow && shapes[26]->_up == Yellow)
+		_useFormula(cube, "R U B' U' R' U R B R'");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_up == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "R U' R' U U R U B U' B' U' R'");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_up == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "L' U L U U L' U' B' U B U L");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_up == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "B L' B L L U' L' U' L U L' B B");
+	else if (shapes[6]->_up == Yellow && shapes[7]->_back == Yellow && shapes[8]->_up == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_up == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "B U B' U' B U' B' R' U' R B U B'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_up == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_up == Yellow && shapes[17]->_right == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "F R U R' U' R U R' U' F'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_up == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "F' L' U' L U L' U' L U F");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_up == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_right == Yellow)
+		_useFormula(cube, "L F R' F R F' R' F R F F L'");
+	else if (shapes[6]->_back == Yellow && shapes[7]->_up == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "L F U F' U' F U' F' U F U F' L'");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_up == Yellow && shapes[8]->_back == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_left == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "L F' L L F U U F U U F' L");
+	else if (shapes[6]->_left == Yellow && shapes[7]->_up == Yellow && shapes[8]->_right == Yellow && \
+		shapes[15]->_left == Yellow && shapes[17]->_up == Yellow && \
+		shapes[24]->_front == Yellow && shapes[25]->_front == Yellow && shapes[26]->_front == Yellow)
+		_useFormula(cube, "R U U R' U' R U' R' F R U R' U' F'");
+	else
+	{
+		_commands.push(cube->y());
+		_solve3advanceds3(cube);
+	}
+}
 
 void	Solver::_solve3advanceds4(Cube3 *cube)
-{ (void)cube; }
+{
+	if (cube->assembled())
+		return ;
+	Shape	**shapes = cube->getShapes();
+	for (int i = 0; i < 4; ++i)
+	{
+		if (shapes[6]->_left == shapes[24]->_left && shapes[6]->_left == shapes[17]->_right && \
+			shapes[6]->_back == shapes[7]->_back && shapes[6]->_back == shapes[26]->_right && \
+			shapes[8]->_back == shapes[15]->_left && shapes[8]->_back == shapes[26]->_front && \
+			shapes[24]->_front == shapes[25]->_front && shapes[24]->_front == shapes[8]->_right)
+			_useFormula(cube, "R U R' U' R' F R R U' R' U' R U R' F'");
+		else if (shapes[7]->_back == shapes[24]->_left && shapes[7]->_back == shapes[26]->_right && \
+			shapes[8]->_back == shapes[15]->_left && shapes[8]->_back == shapes[26]->_front && \
+			shapes[6]->_left == shapes[8]->_right && shapes[6]->_left == shapes[17]->_right && \
+			shapes[6]->_back == shapes[24]->_front && shapes[6]->_back == shapes[25]->_front)
+			_useFormula(cube, "F R U' R' U' R U R' F' R U R' U' R' F R F'");
+		else if (shapes[8]->_right == shapes[25]->_front && shapes[8]->_right == shapes[26]->_right && \
+			shapes[15]->_left == shapes[24]->_front && shapes[15]->_left == shapes[26]->_front && \
+			shapes[6]->_left == shapes[17]->_right && shapes[6]->_left == shapes[24]->_left && \
+			shapes[6]->_back == shapes[7]->_back && shapes[6]->_back == shapes[8]->_back)
+			_useFormula(cube, "R U' R U R U R U' R' U' R R");
+		else if (shapes[8]->_right == shapes[15]->_left && shapes[8]->_right == shapes[26]->_right && \
+			shapes[17]->_right == shapes[24]->_front && shapes[17]->_right == shapes[26]->_front && \
+			shapes[6]->_left == shapes[24]->_left && shapes[6]->_left == shapes[25]->_front && \
+			shapes[6]->_back == shapes[7]->_back && shapes[6]->_back == shapes[8]->_back)
+			_useFormula(cube, "R R U R U R' U' R' U' R' U R'");
+		else if (shapes[6]->_left == shapes[17]->_right && shapes[6]->_left == shapes[24]->_left && \
+			shapes[6]->_back == shapes[8]->_back && shapes[6]->_back == shapes[25]->_front && \
+			shapes[8]->_right == shapes[15]->_left && shapes[8]->_right == shapes[26]->_right && \
+			shapes[7]->_back == shapes[24]->_front && shapes[7]->_back == shapes[26]->_front)
+			_useFormula(cube, "R R L L D' R R L L U U R R L L D' R R L L");
+		else if (shapes[6]->_left == shapes[7]->_back && shapes[6]->_left == shapes[24]->_left && \
+			shapes[6]->_back == shapes[8]->_back && shapes[6]->_back == shapes[15]->_left && \
+			shapes[8]->_right == shapes[25]->_front && shapes[8]->_right == shapes[26]->_right && \
+			shapes[17]->_right == shapes[24]->_front && shapes[17]->_right == shapes[26]->_front)
+			_useFormula(cube, "U U R R L L D R R L L U L R' F F L L R R B B L R'");
+		else if (shapes[15]->_left == shapes[24]->_left && shapes[15]->_left == shapes[26]->_right && \
+			shapes[6]->_left == shapes[7]->_back && shapes[6]->_left == shapes[26]->_front && \
+			shapes[6]->_back == shapes[8]->_back && shapes[6]->_back == shapes[17]->_right &&
+			shapes[8]->_right == shapes[24]->_front && shapes[8]->_right == shapes[25]->_front)
+			_useFormula(cube, "R' F R' B B R F' R' B B R R");
+		else if (shapes[6]->_back == shapes[24]->_front && shapes[6]->_back == shapes[25]->_front && \
+			shapes[8]->_back == shapes[15]->_left && shapes[8]->_back == shapes[24]->_left && \
+			shapes[7]->_back == shapes[8]->_right && shapes[7]->_back == shapes[26]->_right && \
+			shapes[6]->_left == shapes[17]->_right && shapes[6]->_left == shapes[26]->_front)
+			_useFormula(cube, "R R B B R F R' B B R F' R");
+		else if (shapes[6]->_left == shapes[15]->_left && shapes[6]->_left == shapes[24]->_left && \
+			shapes[6]->_back == shapes[7]->_back && shapes[6]->_back == shapes[26]->_right && \
+			shapes[8]->_back == shapes[25]->_front && shapes[8]->_back == shapes[26]->_front && \
+			shapes[8]->_right == shapes[17]->_right && shapes[8]->_right == shapes[24]->_front)
+			_useFormula(cube, "R U U R' U' R U U L' U R' U' L");
+		else if (shapes[7]->_back == shapes[8]->_back && shapes[7]->_back == shapes[26]->_front && \
+			shapes[8]->_right == shapes[24]->_front && shapes[8]->_right == shapes[25]->_front && \
+			shapes[6]->_left == shapes[15]->_left && shapes[6]->_left == shapes[24]->_left && \
+			shapes[6]->_back == shapes[17]->_right && shapes[6]->_back == shapes[26]->_right)
+			_useFormula(cube, "U' R' U L' U U R U' R' U U R L");
+		else if (shapes[6]->_back == shapes[25]->_front && shapes[6]->_back == shapes[26]->_right && \
+			shapes[8]->_back == shapes[17]->_right && shapes[8]->_back == shapes[26]->_front && \
+			shapes[7]->_back == shapes[8]->_right && shapes[7]->_back == shapes[24]->_front && \
+			shapes[6]->_left == shapes[15]->_left && shapes[6]->_left == shapes[24]->_left)
+			_useFormula(cube, "U' R' U R U' R R F' U' F U R F R' F' R R");
+		else if (shapes[15]->_left == shapes[24]->_left && shapes[15]->_left == shapes[26]->_right && \
+			shapes[8]->_back == shapes[17]->_right && shapes[8]->_back == shapes[26]->_front && \
+			shapes[6]->_left == shapes[7]->_back && shapes[6]->_left == shapes[8]->_right && \
+			shapes[6]->_back == shapes[24]->_front && shapes[6]->_back == shapes[25]->_front)
+			_useFormula(cube, "R' U U R U U L U' R' U L' U L U' R U L'");
+		else if (shapes[8]->_back == shapes[24]->_left && shapes[8]->_back == shapes[25]->_front && \
+			shapes[6]->_left == shapes[7]->_back && shapes[6]->_left == shapes[8]->_right && \
+			shapes[6]->_back == shapes[17]->_right && shapes[6]->_back == shapes[26]->_right && \
+			shapes[15]->_left == shapes[24]->_front && shapes[15]->_left == shapes[26]->_front)
+			_useFormula(cube, "L U U L' U U L F' L' U' L U L F L L");
+		else if (shapes[6]->_back == shapes[25]->_front && shapes[6]->_back == shapes[26]->_right && \
+			shapes[17]->_right == shapes[24]->_front && shapes[17]->_right == shapes[26]->_front && \
+			shapes[8]->_back == shapes[15]->_left && shapes[8]->_back == shapes[24]->_left && \
+			shapes[6]->_left == shapes[7]->_back && shapes[6]->_left == shapes[8]->_right)
+			_useFormula(cube, "R' U U R' D' R U' R' D R U R U' R' U' R");
+		else if (shapes[7]->_back == shapes[24]->_left && shapes[7]->_back == shapes[26]->_right && \
+			shapes[8]->_back == shapes[17]->_right && shapes[8]->_back == shapes[26]->_front && \
+			shapes[6]->_left == shapes[8]->_right && shapes[6]->_left == shapes[25]->_front && \
+			shapes[6]->_back == shapes[15]->_left && shapes[6]->_back == shapes[24]->_front)
+			_useFormula(cube, "R' U' R' D' R U' R' D R U R' D' R U R' D R R");
+		else if (shapes[6]->_left == shapes[8]->_right && shapes[6]->_left == shapes[17]->_right && \
+			shapes[6]->_back == shapes[7]->_back && shapes[6]->_back == shapes[24]->_front && \
+			shapes[15]->_left == shapes[24]->_left && shapes[15]->_left == shapes[26]->_right && \
+			shapes[8]->_back == shapes[25]->_front && shapes[8]->_back == shapes[26]->_front)
+			_useFormula(cube, "R U R' U' L U U L' U' L U U R' U L' U' R U R U' R'");
+		else if (shapes[17]->_right == shapes[24]->_left && shapes[17]->_right == shapes[26]->_right && \
+			shapes[7]->_back == shapes[8]->_back && shapes[7]->_back == shapes[26]->_front && \
+			shapes[6]->_left == shapes[8]->_right && shapes[6]->_left == shapes[15]->_left && \
+			shapes[6]->_back == shapes[24]->_front && shapes[6]->_back == shapes[25]->_front)
+			_useFormula(cube, "R' U R U' R' F' U' F R U R' F R' F' R U' R");
+		else if (shapes[6]->_back == shapes[24]->_front && shapes[6]->_back == shapes[25]->_front && \
+			shapes[8]->_back == shapes[17]->_right && shapes[8]->_back == shapes[24]->_left && \
+			shapes[8]->_right == shapes[15]->_left && shapes[8]->_right == shapes[26]->_right && \
+			shapes[6]->_left == shapes[7]->_back && shapes[6]->_left == shapes[26]->_front)
+			_useFormula(cube, "R' R' F F R U U R U' U' R' F R U R' U' R' F R R");
+		else if (shapes[8]->_right == shapes[24]->_front && shapes[8]->_right == shapes[25]->_front && \
+			shapes[7]->_back == shapes[24]->_left && shapes[7]->_back == shapes[26]->_right && \
+			shapes[6]->_left == shapes[17]->_right && shapes[6]->_left == shapes[26]->_front && \
+			shapes[6]->_back == shapes[8]->_back && shapes[6]->_back == shapes[15]->_left)
+			_useFormula(cube, "R' R' F' R U R U' R' F' R U' U' R' U' U' R' F F R R");
+		else if (shapes[6]->_left == shapes[17]->_right && shapes[6]->_left == shapes[24]->_left && \
+			shapes[6]->_back == shapes[15]->_left && shapes[6]->_back == shapes[26]->_right && \
+			shapes[8]->_back == shapes[25]->_front && shapes[8]->_back == shapes[26]->_front && \
+			shapes[7]->_back == shapes[8]->_right && shapes[7]->_back == shapes[24]->_front)
+			_useFormula(cube, "L L F F L' U U L' U U L F' L' U' L U L F' L L");
+		else if (shapes[8]->_right == shapes[15]->_left && shapes[8]->_right == shapes[24]->_front && \
+			shapes[7]->_back == shapes[24]->_left && shapes[7]->_back == shapes[26]->_right && \
+			shapes[6]->_left == shapes[25]->_front && shapes[6]->_left == shapes[26]->_front && \
+			shapes[6]->_back == shapes[8]->_back && shapes[6]->_back == shapes[17]->_right)
+			_useFormula(cube, "U' D R' U' R U D' R R U R' U R U' R U' R R");
+		else
+		{
+			_commands.push(cube->U());
+			continue ;
+		}
+		break ;
+	}
+	while (!cube->getShapes()[6]->horisontalEqual(*cube->getShapes()[3]))
+		_commands.push(cube->U());
+}
 
 void	Solver::_solve3advanced(Cube3 *cube, bool print)
 {
 	size_t prev = 0;
 	//	1-st stage (White cross)
 	_solve3s1v2(cube);
-	// _solve3s2(cube);
 	++_count;
 
 	if (print)
@@ -1202,8 +1584,11 @@ void	Solver::_solve3advanced(Cube3 *cube, bool print)
 		cube->print();
 	}
 
-	//	3-rd stage (Middle layer)
+	//	3-rd stage (Orientation of the Last Layer - OLL)
+	_commands.push(cube->x());
+	_commands.push(cube->x());
 	_solve3advanceds3(cube);
+	_commands.push(cube->resetTransform());
 	
 	if (print)
 	{
@@ -1215,8 +1600,11 @@ void	Solver::_solve3advanced(Cube3 *cube, bool print)
 		cube->print();
 	}
 
-	//	4-th stage (Yellow cross)
+	//	4-th stage (Permutation of the Last Layer - PLL)
+	_commands.push(cube->x());
+	_commands.push(cube->x());
 	_solve3advanceds4(cube);
+	_commands.push(cube->resetTransform());
 	
 	if (print)
 	{

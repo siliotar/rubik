@@ -62,6 +62,11 @@ void	test8(Cube3 &c)
 	test(c, "F' B' L B D F' R' B R' U L F' D R' R' B F' R R R");
 }
 
+void	test9(Cube3 &c)
+{
+	test(c, "U F' U' R' B U' D' F' L' R' D D L F' L' U' B' U' R' D");
+}
+
 void	multitest(Cube3 &c, size_t count)
 {
 	Solver	s;
@@ -72,7 +77,7 @@ void	multitest(Cube3 &c, size_t count)
 	size_t	i;
 	for (i = 0; i < count; ++i)
 	{
-		c.shuffle(100);
+		c.shuffle(20);
 		c.print();
 		Commands	commands = s.solve(&c, true);
 		size += commands.size();
@@ -82,7 +87,8 @@ void	multitest(Cube3 &c, size_t count)
 			min = commands.size();
 		if (commands.size() > 150)
 			++big;
-			// break ;
+		if (!c.assembled())
+			break ;
 	}
 	std::cout << "avg: " << (float)size / i << std::endl;
 	std::cout << "min: " << min << std::endl;
@@ -94,8 +100,9 @@ int	main()
 {
 	srand(time(0));
 	Cube3	c;
-	test5(c);
-	// multitest(c, 3000);
+	// test9(c);
+	// test(c, "U R U R D B' D L U' L' L' R F' B' U U U B' D' U");
+	multitest(c, 50000);
 	return 0;
 	// while (1)
 	// {
