@@ -64,7 +64,7 @@ void	Commands::clear()
 {
 	_commands.clear();
 }
-#include <iostream>
+
 size_t	Commands::size() const
 {
 	size_t	size = 0;

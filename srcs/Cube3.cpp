@@ -14,6 +14,12 @@ Cube3::Cube3() : Cube(3)
 	_methods["L\'"] = &Cube3::rL;
 	_methods["D"] = &Cube3::D;
 	_methods["D\'"] = &Cube3::rD;
+	// _methods["x"] = &Cube3::x;
+	// _methods["x\'"] = &Cube3::rx;
+	// _methods["y"] = &Cube3::y;
+	// _methods["y\'"] = &Cube3::ry;
+	// _methods["z"] = &Cube3::z;
+	// _methods["z\'"] = &Cube3::rz;
 }
 
 Cube3::~Cube3() {}
@@ -42,7 +48,7 @@ std::string	Cube3::D() { rotateFace(-1, 0, -1, getYrotmat(M_PI_2), Lr); return "
 
 std::string	Cube3::rD() { rotateFace(-1, 0, -1, getYrotmat(-M_PI_2), Rr); return "D\'"; }
 
-void	Cube3::shuffle(size_t count) { _shuffle(*this, _methods, count); }
+std::string	Cube3::shuffle(size_t count) { return _shuffle(*this, _methods, count); }
 
 void	Cube3::exec(const std::string &command)
 {

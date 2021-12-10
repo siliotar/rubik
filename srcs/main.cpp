@@ -1,5 +1,6 @@
 #include "Cube3.hpp"
 #include "Solver.hpp"
+#include "Visualizer.hpp"
 
 void	test(Cube3 &c, const std::string &line)
 {
@@ -77,7 +78,7 @@ void	multitest(Cube3 &c, size_t count)
 	size_t	i;
 	for (i = 0; i < count; ++i)
 	{
-		c.shuffle(20);
+		std::cout << c.shuffle(20) << std::endl;
 		c.print();
 		Commands	commands = s.solve(&c, true);
 		size += commands.size();
@@ -102,7 +103,11 @@ int	main()
 	Cube3	c;
 	// test9(c);
 	// test(c, "U R U R D B' D L U' L' L' R F' B' U U U B' D' U");
-	multitest(c, 50000);
+	// multitest(c, 50);
+	Visualizer	v(3);
+	Solver	s;
+	// c.shuffle(10);
+	v.visualize(&c, s.solve(&c));
 	return 0;
 	// while (1)
 	// {

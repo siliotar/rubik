@@ -34,8 +34,9 @@ class Cube
 		int		_size;
 		Shape	**_shapes;
 		template <typename Child>
-		void	_shuffle(Child &c, std::map<std::string, std::string (Child::*)()> methods, size_t count)
+		std::string	_shuffle(Child &c, std::map<std::string, std::string (Child::*)()> methods, size_t count)
 		{
+			std::stringstream	ss;
 			typedef typename std::map<std::string, std::string (Child::*)()>::iterator	iterator;
 			std::string	prevMove = "";
 			for (size_t i = 0; i < count; ++i)
@@ -51,9 +52,11 @@ class Cube
 				}
 				(c.*(it->second))();
 				prevMove = it->first;
-				std::cout << it->first << " ";
+				if (ss.str().size() > 0)
+					ss << " ";
+				ss << it->first;
 			}
-			std::cout << std::endl;
+			return ss.str();
 		}
 	public:
 		Cube(int size);
@@ -81,7 +84,7 @@ class Cube
 				virtual const char* what() const throw ();
 				virtual ~UnknownCommand() throw ();
 		};
-		virtual void	shuffle(size_t count);
+		virtual std::string	shuffle(size_t count);
 		virtual	void	exec(const std::string &command);
 		virtual	void	execline(const std::string &commandLine);
 		std::string	x();

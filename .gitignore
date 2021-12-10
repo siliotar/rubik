@@ -35,3 +35,5 @@
 .vscode
 .dep
 rubik
+libs/glad/*
+libs/glfw/*

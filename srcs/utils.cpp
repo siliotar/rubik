@@ -29,3 +29,17 @@ mat3	getZrotmat(float alpha)
 	res[2] = vec3(0.0, 0.0, 1.0);
 	return res;
 }
+
+std::string		readFile(const std::string &filePath)
+{
+	std::string		line;
+	std::ifstream	f(filePath.c_str());
+	std::stringstream	ss;
+	if (f.is_open())
+	{
+		while (getline(f, line))
+			ss << line << "\n";
+		f.close();
+	}
+	return ss.str();
+}

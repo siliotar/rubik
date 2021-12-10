@@ -120,9 +120,8 @@ Cube::UnknownCommand::UnknownCommand() {}
 const char* Cube::UnknownCommand::what() const throw () { return "Unknowsn command"; }
 Cube::UnknownCommand::~UnknownCommand() throw () {}
 
-void	Cube::shuffle(size_t count)
+std::string	Cube::shuffle(size_t count)
 {
-	srand(time(0));
 	for (size_t i = 0; i < count; ++i)
 	{
 		int	axis = std::rand() % 3;
@@ -142,6 +141,7 @@ void	Cube::shuffle(size_t count)
 			break;
 		}
 	}
+	return "";
 }
 
 void	Cube::exec(const std::string &command) { (void)command; throw UnknownCommand(); }
