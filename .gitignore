@@ -37,3 +37,4 @@
 rubik
 libs/glad/*
 libs/glfw/*
+libs/glm/*

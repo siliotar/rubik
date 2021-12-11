@@ -74,3 +74,13 @@ size_t	Commands::size() const
 			++size;
 	return size;
 }
+
+size_t	Commands::fillSize() const
+{
+	return _commands.size();
+}
+
+const std::string	&Commands::operator[](size_t idx)
+{
+	return _commands[idx];
+}

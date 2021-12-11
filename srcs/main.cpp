@@ -104,10 +104,13 @@ int	main()
 	// test9(c);
 	// test(c, "U R U R D B' D L U' L' L' R F' B' U U U B' D' U");
 	// multitest(c, 50);
-	Visualizer	v(3);
 	Solver	s;
-	// c.shuffle(10);
-	v.visualize(&c, s.solve(&c));
+	std::string	shuf = c.shuffle(10);
+	std::cout << shuf << std::endl;
+	Commands	&comm = s.solve(&c);
+	c.execline(shuf);
+	Visualizer	v(3);
+	v.visualize(&c, comm);
 	return 0;
 	// while (1)
 	// {

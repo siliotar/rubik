@@ -2,6 +2,18 @@
 
 Cube3::Cube3() : Cube(3)
 {
+	_shuffleMethods["F"] = &Cube3::F;
+	_shuffleMethods["F\'"] = &Cube3::rF;
+	_shuffleMethods["R"] = &Cube3::R;
+	_shuffleMethods["R\'"] = &Cube3::rR;
+	_shuffleMethods["U"] = &Cube3::U;
+	_shuffleMethods["U\'"] = &Cube3::rU;
+	_shuffleMethods["B"] = &Cube3::B;
+	_shuffleMethods["B\'"] = &Cube3::rB;
+	_shuffleMethods["L"] = &Cube3::L;
+	_shuffleMethods["L\'"] = &Cube3::rL;
+	_shuffleMethods["D"] = &Cube3::D;
+	_shuffleMethods["D\'"] = &Cube3::rD;
 	_methods["F"] = &Cube3::F;
 	_methods["F\'"] = &Cube3::rF;
 	_methods["R"] = &Cube3::R;
@@ -14,12 +26,12 @@ Cube3::Cube3() : Cube(3)
 	_methods["L\'"] = &Cube3::rL;
 	_methods["D"] = &Cube3::D;
 	_methods["D\'"] = &Cube3::rD;
-	// _methods["x"] = &Cube3::x;
-	// _methods["x\'"] = &Cube3::rx;
-	// _methods["y"] = &Cube3::y;
-	// _methods["y\'"] = &Cube3::ry;
-	// _methods["z"] = &Cube3::z;
-	// _methods["z\'"] = &Cube3::rz;
+	_methods["x"] = &Cube3::x;
+	_methods["x\'"] = &Cube3::rx;
+	_methods["y"] = &Cube3::y;
+	_methods["y\'"] = &Cube3::ry;
+	_methods["z"] = &Cube3::z;
+	_methods["z\'"] = &Cube3::rz;
 }
 
 Cube3::~Cube3() {}
@@ -48,7 +60,7 @@ std::string	Cube3::D() { rotateFace(-1, 0, -1, getYrotmat(M_PI_2), Lr); return "
 
 std::string	Cube3::rD() { rotateFace(-1, 0, -1, getYrotmat(-M_PI_2), Rr); return "D\'"; }
 
-std::string	Cube3::shuffle(size_t count) { return _shuffle(*this, _methods, count); }
+std::string	Cube3::shuffle(size_t count) { return _shuffle(*this, _shuffleMethods, count); }
 
 void	Cube3::exec(const std::string &command)
 {

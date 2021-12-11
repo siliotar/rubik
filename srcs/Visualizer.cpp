@@ -47,14 +47,14 @@ Visualizer::Visualizer(int size): _size(size)
 	_vCount = (_size + 1) * (_size + 1) * (_size + 1);
 
 	_vertices = new float[_vCount * 3];
-	_idxs = new unsigned int[6 * 6 * _size * _size * _size];
+	_idxs = new unsigned int[24 * _size * _size * _size];
 	_setVertices();
 
 	_vbo = _makeBuffer(GL_ARRAY_BUFFER, _vCount * sizeof(float) * 3, _vertices);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
 
-	_ibo = _makeBuffer(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 8 * _size * _size * _size, _idxs);
+	_ibo = _makeBuffer(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 24 * _size * _size * _size, _idxs);
 
 	_createShader("res/shaders/VertexBasic.shader", "res/shaders/FragmentBasic.shader");
 
@@ -75,76 +75,69 @@ void	Visualizer::_setVertices()
 			{
 				_vertices[x + y * incsize + z * incsize * incsize] = -fsize / 2 + 1.0f * (x / 3);
 				_vertices[x + y * incsize + z * incsize * incsize + 1] = -fsize / 2 + 1.0f * (y / 3);
-				_vertices[x + y * incsize + z * incsize * incsize + 2] = fsize / 2 - 1.0f * (z / 3);
+				_vertices[x + y * incsize + z * incsize * incsize + 2] = -fsize / 2 + 1.0f * (z / 3);
 			}
-	for (int z = 0; z < _size * 36; z += 36)
-		for (int y = 0; y < _size * 36; y += 36)
-			for (int x = 0; x < _size * 36; x += 36)
+	for (int z = 0; z < _size * 24; z += 24)
+		for (int y = 0; y < _size * 24; y += 24)
+			for (int x = 0; x < _size * 24; x += 24)
 			{
-				int tx = x / 36;
-				int ty = y / 36;
-				int tz = z / 36;
-				_idxs[x + y * _size + z * _size * _size] = tx + ty * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 1] = tx + 1 + ty * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 2] = tx + (ty + 1) * incsize + tz * incsize * incsize;
+				int tx = x / 24;
+				int ty = y / 24;
+				int tz = z / 24;
+				int idxs[8] = {
+					tx + ty * incsize + tz * incsize * incsize,
+					tx + 1 + ty * incsize + tz * incsize * incsize,
+					tx + ty * incsize + (tz + 1) * incsize * incsize,
+					tx + 1 + ty * incsize + (tz + 1) * incsize * incsize,
+					tx + (ty + 1) * incsize + tz * incsize * incsize,
+					tx + 1 + (ty + 1) * incsize + tz * incsize * incsize,
+					tx + (ty + 1) * incsize + (tz + 1) * incsize * incsize,
+					tx + 1 + (ty + 1) * incsize + (tz + 1) * incsize * incsize,
+				};
+				//	Down
+				_idxs[x + y * _size + z * _size * _size] = idxs[0];
+				_idxs[x + y * _size + z * _size * _size + 1] = idxs[1];
+				_idxs[x + y * _size + z * _size * _size + 2] = idxs[2];
+				_idxs[x + y * _size + z * _size * _size + 3] = idxs[3];
 
-				_idxs[x + y * _size + z * _size * _size + 3] = tx + 1 + ty * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 4] = tx + (ty + 1) * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 5] = tx + 1 + (ty + 1) * incsize + tz * incsize * incsize;
+				//	Back
+				_idxs[x + y * _size + z * _size * _size + 4] = idxs[0];
+				_idxs[x + y * _size + z * _size * _size + 5] = idxs[1];
+				_idxs[x + y * _size + z * _size * _size + 6] = idxs[4];
+				_idxs[x + y * _size + z * _size * _size + 7] = idxs[5];
 
-				_idxs[x + y * _size + z * _size * _size + 6] = tx + 1 + ty * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 7] = tx + 1 + (ty + 1) * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 8] = tx + 1 + (ty + 1) * incsize + (tz + 1) * incsize * incsize;
+				//	Right
+				_idxs[x + y * _size + z * _size * _size + 8] = idxs[1];
+				_idxs[x + y * _size + z * _size * _size + 9] = idxs[3];
+				_idxs[x + y * _size + z * _size * _size + 10] = idxs[5];
+				_idxs[x + y * _size + z * _size * _size + 11] = idxs[7];
 
-				_idxs[x + y * _size + z * _size * _size + 9] = tx + 1 + (ty + 1) * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 10] = tx + 1 + (ty + 1) * incsize + (tz + 1) * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 11] = tx + 1 + ty * incsize + (tz + 1) * incsize * incsize;
+				//	Front
+				_idxs[x + y * _size + z * _size * _size + 12] = idxs[2];
+				_idxs[x + y * _size + z * _size * _size + 13] = idxs[3];
+				_idxs[x + y * _size + z * _size * _size + 14] = idxs[6];
+				_idxs[x + y * _size + z * _size * _size + 15] = idxs[7];
 
-				_idxs[x + y * _size + z * _size * _size + 12] = tx + 1 + ty * incsize + (tz + 1) * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 13] = tx + 1 + (ty + 1) * incsize + (tz + 1) * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 14] = tx + (ty + 1) * incsize + (tz + 1) * incsize * incsize;
+				//	Left
+				_idxs[x + y * _size + z * _size * _size + 16] = idxs[0];
+				_idxs[x + y * _size + z * _size * _size + 17] = idxs[2];
+				_idxs[x + y * _size + z * _size * _size + 18] = idxs[4];
+				_idxs[x + y * _size + z * _size * _size + 19] = idxs[6];
 
-				_idxs[x + y * _size + z * _size * _size + 15] = tx + 1 + (ty + 1) * incsize + (tz + 1) * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 16] = tx + (ty + 1) * incsize + (tz + 1) * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 17] = tx + ty * incsize + (tz + 1) * incsize * incsize;
-
-				_idxs[x + y * _size + z * _size * _size + 18] = tx + ty * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 19] = tx + ty * incsize + (tz + 1) * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 20] = tx + (ty + 1) * incsize + (tz + 1) * incsize * incsize;
-
-				_idxs[x + y * _size + z * _size * _size + 21] = tx + ty * incsize + (tz + 1) * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 22] = tx + (ty + 1) * incsize + (tz + 1) * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 23] = tx + (ty + 1) * incsize + tz * incsize * incsize;
-
-				_idxs[x + y * _size + z * _size * _size + 24] = tx + (ty + 1) * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 25] = tx + 1 + (ty + 1) * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 26] = tx + 1 + (ty + 1) * incsize + (tz + 1) * incsize * incsize;
-
-				_idxs[x + y * _size + z * _size * _size + 27] = tx + 1 + (ty + 1) * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 28] = tx + 1 + (ty + 1) * incsize + (tz + 1) * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 29] = tx + (ty + 1) * incsize + (tz + 1) * incsize * incsize;
-
-				_idxs[x + y * _size + z * _size * _size + 30] = tx + ty * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 31] = tx + 1 + ty * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 32] = tx + 1 + ty * incsize + (tz + 1) * incsize * incsize;
-
-				_idxs[x + y * _size + z * _size * _size + 33] = tx + 1 + ty * incsize + tz * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 34] = tx + 1 + ty * incsize + (tz + 1) * incsize * incsize;
-				_idxs[x + y * _size + z * _size * _size + 35] = tx + ty * incsize + (tz + 1) * incsize * incsize;
-				std::cout << x + y * _size + z * _size * _size + 35 << std::endl;
+				//	Up
+				_idxs[x + y * _size + z * _size * _size + 20] = idxs[4];
+				_idxs[x + y * _size + z * _size * _size + 21] = idxs[5];
+				_idxs[x + y * _size + z * _size * _size + 22] = idxs[6];
+				_idxs[x + y * _size + z * _size * _size + 23] = idxs[7];
 			}
 }
 
 void	Visualizer::_setLocations()
 {
-	// addLocation(scop->objectShader, &scop->locations.color, "u_Color");
-	// addLocation(scop->objectShader, &scop->locations.tempTexture, "u_SimpleColor");
-	// addLocation(scop->objectShader, &scop->locations.lightPos, "u_lightPos");
-	// addLocation(scop->objectShader, &scop->locations.lightColor, "u_lightColor");
-	// addLocation(scop->objectShader, &scop->locations.perspective, "perspective");
-	// addLocation(scop->objectShader, &scop->locations.view, "view");
-	// addLocation(scop->objectShader, &scop->locations.rotmat, "rotmat");
-	// addLocation(scop->objectShader, &scop->locations.texTrans, "u_texTrans");
+	_model = glGetUniformLocation(_shader, "model");
+	_view = glGetUniformLocation(_shader, "view");
+	_projection = glGetUniformLocation(_shader, "projection");
+	_color = glGetUniformLocation(_shader, "color");
 }
 
 unsigned int	Visualizer::_makeBuffer(unsigned int type, unsigned int size, void* data)
@@ -242,37 +235,96 @@ void	Visualizer::_calculateDeltaTime()
 	lastFrame = currentFrame;
 }
 
+Color	Visualizer::_getColor(int x, int y, int z, int i)
+{
+	Shape	*s = _cube->getShapes()[x + y * _size + z * _size * _size];
+	switch (i)
+	{
+	case 0:
+		return s->_down;
+	case 1:
+		return s->_back;
+	case 2:
+		return s->_right;
+	case 3:
+		return s->_front;
+	case 4:
+		return s->_left;
+	default:
+		return s->_up;
+	}
+}
+
+glm::vec3	Visualizer::_getrgbColor(int x, int y, int z, int i)
+{
+	Color	c = _getColor(x, y, z, i);
+	switch (c)
+	{
+	case Yellow:
+		return glm::vec3(1.0f, 1.0f, 0.2f);
+	case Blue:
+		return glm::vec3(0.2f, 0.3f, 0.8f);
+	case Red:
+		return glm::vec3(0.8f, 0.2f, 0.3f);
+	case Green:
+		return glm::vec3(0.2f, 0.8f, 0.3f);
+	case Orange:
+		return glm::vec3(1.0f, 0.55f, 0.0f);
+	case White:
+		return glm::vec3(0.9f, 0.9f, 0.9f);
+	default:
+		return glm::vec3(0.1f, 0.1f, 0.1f);
+	}
+}
+
+float a = 0.0f;
+size_t q = 0;
+
 void	Visualizer::_drawScene()
 {
 	glBindVertexArray(_vao);
 	glUseProgram(_shader);
 
-	// glUniform4f(scop->locations.perspective, M_PI_4, (float)scop->screenWidth / scop->screenHeight, 0.1f, 100.0f);
+	glm::mat4	model = glm::mat4(1.0f);
+	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	a += 1;
+	if (a > 20)
+	{
+		a -= 20;
+		if (q < _commands->fillSize())
+		{
+			std::cout << (*_commands)[q] << std::endl;
+			_cube->exec((*_commands)[q]);
+			++q;
+		}
+	}
+	glm::mat4	view = glm::mat4(1.0f);
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -7.0f));
+	glm::mat4	proj = glm::perspective(glm::radians(45.0f), 1366.0f/768.0f, 0.1f, 100.0f);
+	glUniformMatrix4fv(_model, 1, GL_FALSE, (const GLfloat*)glm::value_ptr(model));
+	glUniformMatrix4fv(_view, 1, GL_FALSE, (const GLfloat*)glm::value_ptr(view));
+	glUniformMatrix4fv(_projection, 1, GL_FALSE, (const GLfloat*)glm::value_ptr(proj));
 
-	// t_vector3 tmp = scop->camera.position;
-	// sumvec3(&tmp, scop->camera.front, -1.0f);
-	// lookat(&scop->lookAt, scop->camera.position, tmp, scop->camera.up);
-	// glUniformMatrix4fv(scop->locations.view, 1, GL_FALSE, (const GLfloat*)&scop->lookAt);
-	// glUniformMatrix3fv(scop->locations.rotmat, 1, GL_FALSE, (const GLfloat*)&scop->rotmat);
-
-	//	change by _size * _size * _size GL_TRIANGLE_STRIP
-	glDrawElements(GL_TRIANGLES, 36 * _size * _size * _size, GL_UNSIGNED_INT, 0);
-	// scop->texTrans += 0.1 * scop->texSign * scop->deltaTime;
-	// if (scop->texTrans > 1.0f)
-	// 	scop->texTrans = 1.0f;
-	// if (scop->texTrans < 0.0f)
-	// 	scop->texTrans = 0.0f;
-	// scop->rotmat = muliplyMat3(scop->rotmat, getyrot(0.5f * M_PI));
-	// scop->rotmat = muliplyMat3(getzrot(scop->rotation.z), muliplyMat3(getyrot(scop->rotation.y), \
-	// 	muliplyMat3(getxrot(scop->rotation.x), scop->rotmat)));
-	// scop->rotmat = muliplyMat3(scop->rotmat, getyrot(-0.5f * M_PI));
-	// setVector3(&(scop->rotation), 0.0f, 0.0f, 0.0f);
+	for (int z = 0; z < _size * 24; z += 24)
+		for (int y = 0; y < _size * 24; y += 24)
+			for (int x = 0; x < _size * 24; x += 24)
+			{
+				GLintptr offset = x + y * _size + z * _size * _size;
+				offset *= sizeof(unsigned int);
+				for (int i = 0; i < 6; ++i)
+				{
+					glm::vec3	color = _getrgbColor(x / 24, y / 24, z / 24, i);
+					glUniform3f(_color, color.r, color.g, color.b);
+					glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, (GLvoid*)(offset + 4 * i * sizeof(unsigned int)));
+				}
+			}
 }
 
 void	Visualizer::visualize(Cube *cube, Commands &commands)
 {
-	(void)cube;
-	(void)commands;
+	_cube = cube;
+	_commands = &commands;
 	while (!glfwWindowShouldClose(_window))
 	{
 		// checkResize(scop);

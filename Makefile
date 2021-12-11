@@ -29,7 +29,7 @@ OBJ = $(addprefix $(OBJDIR), $(SOURCEFILES:.cpp=.o)) $(OBJDIR)glad.o
 
 DEP = $(addprefix $(DEPDIR), $(SOURCEFILES:.cpp=.d)) $(DEPDIR)glad.d
 
-INCLUDES = -I $(INCLUDEDIR) -I libs/glfw/include -I libs/glad/include
+INCLUDES = -I $(INCLUDEDIR) -I libs/glfw/include -I libs/glad/include -I libs/glm/glm
 
 ifeq ($(UNAME_S),Darwin)
 LIBS = -L ./libs/glfw-3.3.5/src/ -lglfw3 -lpthread -ldl -lm -L ./libs/
@@ -56,7 +56,8 @@ $(DEPDIR):
 $(OBJ): | $(OBJDIR) $(DEPDIR)
 
 $(NAME): $(OBJ)
-	cd libs/glfw && cmake . && make --silent
+	# cd libs/glfw && cmake . && make --silent
+	# cd libs/glm && cmake . && make --silent
 ifeq ($(UNAME_S),Darwin)
 	clang++ $(OBJ) -o $(NAME) -framework Cocoa -framework OpenGL -framework QuartzCore -framework IOKit $(LIBS)
 else

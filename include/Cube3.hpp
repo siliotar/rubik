@@ -13,6 +13,7 @@ class Cube3 : public Cube
 		Cube3(const Cube3 &copy);
 		Cube3	&operator=(const Cube3 &other);
 		std::map<std::string, Method>	_methods;
+		std::map<std::string, Method>	_shuffleMethods;
 	public:
 		Cube3();
 		virtual ~Cube3();

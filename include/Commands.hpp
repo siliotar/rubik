@@ -16,4 +16,6 @@ class Commands
 		std::string	str() const;
 		void	clear();
 		size_t	size() const;
+		size_t	fillSize() const;
+		const std::string	&operator[](size_t idx);
 };

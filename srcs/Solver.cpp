@@ -1588,7 +1588,7 @@ void	Solver::_solve3advanced(Cube3 *cube, bool print)
 	_commands.push(cube->x());
 	_commands.push(cube->x());
 	_solve3advanceds3(cube);
-	_commands.push(cube->resetTransform());
+	_commands.pushLine(cube->resetTransform());
 	
 	if (print)
 	{
@@ -1604,7 +1604,7 @@ void	Solver::_solve3advanced(Cube3 *cube, bool print)
 	_commands.push(cube->x());
 	_commands.push(cube->x());
 	_solve3advanceds4(cube);
-	_commands.push(cube->resetTransform());
+	_commands.pushLine(cube->resetTransform());
 	
 	if (print)
 	{
