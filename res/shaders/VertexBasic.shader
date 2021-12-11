@@ -6,11 +6,12 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 color;
+uniform mat3 rotmat;
 
 out vec4 v_Color;
 
 void main()
 {
-	gl_Position = projection * view * model * vec4(position, 1.0);
+	gl_Position = projection * view * model * vec4(position * rotmat, 1.0);
 	v_Color = vec4(color, 1.0f);
 }

@@ -34,10 +34,13 @@ class Visualizer
 		unsigned int	_view;
 		unsigned int	_projection;
 		unsigned int	_color;
+		unsigned int	_rotmat;
 		float			*_vertices;
 		unsigned int	*_idxs;
 		size_t			_vCount;
 		float			_deltaTime;
+		float			_rotAngle;
+		size_t			_command;
 		Cube			*_cube;
 		Commands		*_commands;
 		Visualizer(const Visualizer &other);

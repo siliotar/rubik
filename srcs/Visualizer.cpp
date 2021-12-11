@@ -1,6 +1,6 @@
 #include "Visualizer.hpp"
 
-Visualizer::Visualizer(int size): _size(size)
+Visualizer::Visualizer(int size): _size(size), _rotAngle(0.0f), _command(0)
 {
 	if (!glfwInit())
 	{
@@ -138,6 +138,7 @@ void	Visualizer::_setLocations()
 	_view = glGetUniformLocation(_shader, "view");
 	_projection = glGetUniformLocation(_shader, "projection");
 	_color = glGetUniformLocation(_shader, "color");
+	_rotmat = glGetUniformLocation(_shader, "rotmat");
 }
 
 unsigned int	Visualizer::_makeBuffer(unsigned int type, unsigned int size, void* data)
@@ -277,9 +278,6 @@ glm::vec3	Visualizer::_getrgbColor(int x, int y, int z, int i)
 	}
 }
 
-float a = 0.0f;
-size_t q = 0;
-
 void	Visualizer::_drawScene()
 {
 	glBindVertexArray(_vao);
@@ -288,17 +286,6 @@ void	Visualizer::_drawScene()
 	glm::mat4	model = glm::mat4(1.0f);
 	model = glm::rotate(model, glm::radians(30.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	a += 1;
-	if (a > 20)
-	{
-		a -= 20;
-		if (q < _commands->fillSize())
-		{
-			std::cout << (*_commands)[q] << std::endl;
-			_cube->exec((*_commands)[q]);
-			++q;
-		}
-	}
 	glm::mat4	view = glm::mat4(1.0f);
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -7.0f));
 	glm::mat4	proj = glm::perspective(glm::radians(45.0f), 1366.0f/768.0f, 0.1f, 100.0f);
@@ -306,12 +293,62 @@ void	Visualizer::_drawScene()
 	glUniformMatrix4fv(_view, 1, GL_FALSE, (const GLfloat*)glm::value_ptr(view));
 	glUniformMatrix4fv(_projection, 1, GL_FALSE, (const GLfloat*)glm::value_ptr(proj));
 
+	_rotAngle += M_PI_2 * _deltaTime;
+	if (_rotAngle >= M_PI_2)
+	{
+		_rotAngle = 0.0f;
+		if (_command < _commands->fillSize())
+		{
+			// std::cout << (*_commands)[_command] << std::endl;
+			_cube->exec((*_commands)[_command]);
+			++_command;
+		}
+	}
 	for (int z = 0; z < _size * 24; z += 24)
 		for (int y = 0; y < _size * 24; y += 24)
 			for (int x = 0; x < _size * 24; x += 24)
 			{
 				GLintptr offset = x + y * _size + z * _size * _size;
 				offset *= sizeof(unsigned int);
+				glm::mat4	rotmat = glm::mat3(1.0f);
+				if ((*_commands)[_command] == "R" && x == (_size - 1) * 24)
+					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+				else if ((*_commands)[_command] == "R'" && x == (_size - 1) * 24)
+					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+				else if ((*_commands)[_command] == "L" && x == 0)
+					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+				else if ((*_commands)[_command] == "L'" && x == 0)
+					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+				else if ((*_commands)[_command] == "U" && y == (_size - 1) * 24)
+					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+				else if ((*_commands)[_command] == "U'" && y == (_size - 1) * 24)
+					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+				else if ((*_commands)[_command] == "D" && y == 0)
+					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+				else if ((*_commands)[_command] == "D'" && y == 0)
+					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+				else if ((*_commands)[_command] == "F" && z == (_size - 1) * 24)
+					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+				else if ((*_commands)[_command] == "F'" && z == (_size - 1) * 24)
+					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+				else if ((*_commands)[_command] == "B" && z == 0)
+					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+				else if ((*_commands)[_command] == "B'" && z == 0)
+					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+				else if ((*_commands)[_command] == "x")
+					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+				else if ((*_commands)[_command] == "x'")
+					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+				else if ((*_commands)[_command] == "y")
+					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+				else if ((*_commands)[_command] == "y'")
+					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+				else if ((*_commands)[_command] == "z")
+					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+				else if ((*_commands)[_command] == "z'")
+					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+
+				glUniformMatrix3fv(_rotmat, 1, GL_FALSE, (const GLfloat*)glm::value_ptr(glm::mat3(rotmat)));
 				for (int i = 0; i < 6; ++i)
 				{
 					glm::vec3	color = _getrgbColor(x / 24, y / 24, z / 24, i);
@@ -337,8 +374,6 @@ void	Visualizer::visualize(Cube *cube, Commands &commands)
 		_drawScene();
 
 		// drawInterface(scop);
-
-		// scop->frames++;
 
 		glfwSwapBuffers(_window);
 		glfwPollEvents();
