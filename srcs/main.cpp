@@ -173,9 +173,12 @@ int	main(int argc, const char **argv)
 		}
 		if (flags & VISUALIZE)
 		{
+			srand(time(0));
 			Commands	cmd;
 			cmd.pushLine(shuff);
-			Visualizer	v(3, true, flags & BEGINNERALGO);
+			if (sCount == 0)
+				sCount = 20;
+			Visualizer	v(3, true, flags & BEGINNERALGO, sCount);
 			v.visualize(&cube, cmd);
 		}
 		else

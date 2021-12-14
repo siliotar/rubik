@@ -49,6 +49,7 @@ class Visualizer
 		bool			_shuffle;
 		float			_speed;
 		bool			_beginner;
+		int				_shuffleCount;
 		Visualizer(const Visualizer &other);
 		Visualizer	&operator=(const Visualizer &other);
 		unsigned int	_makeBuffer(unsigned int type, unsigned int size, void* data);
@@ -64,7 +65,7 @@ class Visualizer
 		void	_processInput();
 		void	_checkResize();
 	public:
-		Visualizer(int size, bool solve = false, bool beginner = false);
+		Visualizer(int size, bool solve = false, bool beginner = false, int shuffleCount = 20);
 		~Visualizer();
 		void	visualize(Cube *cube, Commands &commands);
 };

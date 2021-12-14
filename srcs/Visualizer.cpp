@@ -1,7 +1,9 @@
 #include "Visualizer.hpp"
 
-Visualizer::Visualizer(int size, bool solve, bool beginner): _size(size), _rotAngle(0.0f), _screenWidth(1366), \
-_screenHeight(768), _freeMode(0), _solve(solve), _shuffle(false), _speed(1.0f), _beginner(beginner)
+Visualizer::Visualizer(int size, bool solve, bool beginner, int shuffleCount):
+_size(size), _rotAngle(0.0f), _screenWidth(1366), _screenHeight(768),
+_freeMode(0), _solve(solve), _shuffle(false), _speed(1.0f),
+_beginner(beginner), _shuffleCount(shuffleCount)
 {
 	if (!glfwInit())
 	{
@@ -313,6 +315,8 @@ void	Visualizer::_drawScene()
 			*_commands = Cube3(*static_cast<Cube3*>(_cube)).solve(true, _beginner);
 		else
 			*_commands = Cube(*_cube).solve(true, _beginner);
+		std::cout << _commands->str() << std::endl;
+		std::cout << "Size = " << _commands->size() << std::endl;
 		_solve = false;
 		_freeMode = false;
 	}
@@ -320,10 +324,12 @@ void	Visualizer::_drawScene()
 	{
 		std::string	shuf;
 		if (static_cast<Cube3*>(_cube))
-			shuf = (Cube3(*static_cast<Cube3*>(_cube))).shuffle(20);
+			shuf = (Cube3(*static_cast<Cube3*>(_cube))).shuffle(_shuffleCount);
 		else
-			shuf = Cube(*_cube).shuffle(20);
+			shuf = Cube(*_cube).shuffle(_shuffleCount);
 		_commands->pushLine(shuf);
+		std::cout << _commands->str() << std::endl;
+		std::cout << "Size = " << _commands->size() << std::endl;
 		_shuffle = false;
 		_freeMode = false;
 	}
