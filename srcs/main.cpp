@@ -16,58 +16,6 @@ void	test(Cube3 &c, const std::string &line)
 
 }
 
-//	140
-void	test1(Cube3 &c)
-{
-	test(c, "U R D R L' R R U' D U R' D U R' B' L R' B L R'");
-}
-
-//	146
-void	test2(Cube3 &c)
-{
-	test(c, "D R' F R' D' L U' D' L' D U' L' L' R B' U' B' F' D' L");
-}
-
-//	112
-void	test3(Cube3 &c)
-{
-	test(c, "D U' B U F R B' D F' B R' B' F' U' B F L' L' U' U'");
-}
-
-//	156
-void	test4(Cube3 &c)
-{
-	test(c, "D F D' R L' L' F U R' B' U' L F U L R' D L B D'");
-}
-
-//	204
-void	test5(Cube3 &c)
-{
-	test(c, "F D D F D U' U' F' L U R' B' B' F' U' F' R' D' B F");
-}
-
-//	208
-void	test6(Cube3 &c)
-{
-	test(c, "R' B R' R' L U F R' U' R' U' U' L' U D R' L' L' B' L");
-}
-
-//	202
-void	test7(Cube3 &c)
-{
-	test(c, "L B L R L D' F D' U F L B D L' F B' B' R L' L'");
-}
-
-void	test8(Cube3 &c)
-{
-	test(c, "F' B' L B D F' R' B R' U L F' D R' R' B F' R R R");
-}
-
-void	test9(Cube3 &c)
-{
-	test(c, "U F' U' R' B U' D' F' L' R' D D L F' L' U' B' U' R' D");
-}
-
 void	multitest(Cube3 &c, size_t count)
 {
 	Solver	s;
@@ -101,29 +49,12 @@ int	main()
 {
 	srand(time(0));
 	Cube3	c;
-	// test9(c);
-	// test(c, "U R U R D B' D L U' L' L' R F' B' U U U B' D' U");
-	// multitest(c, 50);
-	Solver	s;
-	std::string	shuf = c.shuffle(10);
+	std::string	shuf = c.shuffle(20);
 	std::cout << shuf << std::endl;
-	Commands	&comm = s.solve(&c);
-	c.execline(shuf);
+	Cube3	copy(c);
+	Commands	&comm = copy.solve();
+	std::cout << comm.str() << std::endl;
 	Visualizer	v(3);
 	v.visualize(&c, comm);
 	return 0;
-	// while (1)
-	// {
-	// 	std::cin >> tmp;
-	// 	try
-	// 	{
-	// 		c.exec(tmp);
-	// 	}
-	// 	catch(const std::exception& e)
-	// 	{
-	// 		std::cerr << e.what() << '\n';
-	// 	}
-	// 	std::cout << std::endl;
-	// 	c.print();
-	// }
 }

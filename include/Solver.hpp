@@ -3,11 +3,12 @@
 class Cube;
 class Cube3;
 class Commands;
+class Solver;
+class Shape;
 
 #include <sstream>
-#include "Cube.hpp"
-#include "Cube3.hpp"
 #include "Commands.hpp"
+#include "Shape.hpp"
 
 class Solver
 {
@@ -58,3 +59,6 @@ class Solver
 		virtual ~Solver();
 		Commands	&solve(Cube *cube, bool print = true);
 };
+
+#include "Cube.hpp"
+#include "Cube3.hpp"

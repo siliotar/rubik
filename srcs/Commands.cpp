@@ -2,37 +2,47 @@
 
 Commands::Commands() {}
 
+Commands	&Commands::operator=(const Commands& other)
+{
+	if (this != &other)
+		_commands = other._commands;
+	return *this;
+}
+
 Commands::~Commands() {}
 
-void	Commands::push(std::string command)
+void	Commands::push(std::string command, bool optimize)
 {
-	if (_commands.size() > 2)
+	if (optimize)
 	{
-		if (_commands[_commands.size() - 1] == command && \
-			_commands[_commands.size() - 2] == command)
+		if (_commands.size() > 1)
 		{
-			if (command.size() == 1)
-				command += "\'";
-			else
-				command = command.substr(0, 1);
-			_commands.erase(_commands.begin() + (_commands.size() - 2), _commands.end());
-			_commands.push_back(command);
-			return ;
+			if (_commands[_commands.size() - 1] == command && \
+				_commands[_commands.size() - 2] == command)
+			{
+				if (command.size() == 1)
+					command += "\'";
+				else
+					command = command.substr(0, 1);
+				_commands.erase(_commands.begin() + (_commands.size() - 2), _commands.end());
+				_commands.push_back(command);
+				return ;
+			}
 		}
-	}
-	if (_commands.size() > 0)
-	{
-		if (command.size() != _commands[_commands.size() - 1].size() && \
-			_commands[_commands.size() - 1][0] == command[0])
+		if (_commands.size() > 0)
 		{
-			_commands.pop_back();
-			return ;
+			if (command.size() != _commands[_commands.size() - 1].size() && \
+				_commands[_commands.size() - 1][0] == command[0])
+			{
+				_commands.pop_back();
+				return ;
+			}
 		}
 	}
 	_commands.push_back(command);
 }
 
-void	Commands::pushLine(const std::string &commandLine)
+void	Commands::pushLine(const std::string &commandLine, bool optimize)
 {
 	
 	for (size_t i = 0; i < commandLine.size(); ++i)
@@ -42,7 +52,7 @@ void	Commands::pushLine(const std::string &commandLine)
 			size_t	size = 1;
 			if (i < commandLine.size() - 1 && commandLine[i + 1] != ' ')
 				++size;
-			push(commandLine.substr(i, size));
+			push(commandLine.substr(i, size), optimize);
 		}
 	}
 }
@@ -75,7 +85,7 @@ size_t	Commands::size() const
 	return size;
 }
 
-size_t	Commands::fillSize() const
+size_t	Commands::fullSize() const
 {
 	return _commands.size();
 }
@@ -83,4 +93,15 @@ size_t	Commands::fillSize() const
 const std::string	&Commands::operator[](size_t idx)
 {
 	return _commands[idx];
+}
+
+std::string	Commands::popFront()
+{
+	std::string	ret = "";
+	if (_commands.size() > 0)
+	{
+		ret = _commands[0];
+		_commands.erase(_commands.begin());
+	}
+	return ret;
 }

@@ -40,9 +40,14 @@ class Visualizer
 		size_t			_vCount;
 		float			_deltaTime;
 		float			_rotAngle;
-		size_t			_command;
 		Cube			*_cube;
 		Commands		*_commands;
+		int				_screenWidth;
+		int				_screenHeight;
+		bool			_freeMode;
+		bool			_solve;
+		bool			_shuffle;
+		float			_speed;
 		Visualizer(const Visualizer &other);
 		Visualizer	&operator=(const Visualizer &other);
 		unsigned int	_makeBuffer(unsigned int type, unsigned int size, void* data);
@@ -55,6 +60,8 @@ class Visualizer
 		void	_drawScene();
 		Color	_getColor(int x, int y, int z, int i);
 		glm::vec3	_getrgbColor(int x, int y, int z, int i);
+		void	_processInput();
+		void	_checkResize();
 	public:
 		Visualizer(int size);
 		~Visualizer();

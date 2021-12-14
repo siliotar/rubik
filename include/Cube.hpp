@@ -3,6 +3,8 @@
 class Shape;
 class mat3;
 class Cube;
+class Solver;
+class Commands;
 
 #include <iostream>
 #include <map>
@@ -10,9 +12,8 @@ class Cube;
 #include <ctime>
 #include <sstream>
 #include "Color.hpp"
-#include "Shape.hpp"
-#include "mat3.hpp"
 #include "utils.hpp"
+#include "Commands.hpp"
 
 enum Rotation
 {
@@ -28,8 +29,7 @@ class Cube
 {
 	private:
 		Cube();
-		Cube(const Cube& copy);
-		Cube	&operator=(const Cube& other);
+		Solver	*_solver;
 	protected:
 		int		_size;
 		Shape	**_shapes;
@@ -60,6 +60,8 @@ class Cube
 		}
 	public:
 		Cube(int size);
+		Cube(const Cube& copy);
+		Cube	&operator=(const Cube& other);
 		virtual ~Cube();
 		void	print();
 		void	rotateFace(int x, int y, int z, mat3 rotmat, Rotation rot);
@@ -96,4 +98,9 @@ class Cube
 		std::string	resetTransform();
 		Shape		**getShapes() const;
 		bool		assembled() const;
+		Commands	&solve(bool print = true);
 };
+
+#include "Shape.hpp"
+#include "mat3.hpp"
+#include "Solver.hpp"

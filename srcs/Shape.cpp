@@ -19,6 +19,20 @@ _back(copy._back),
 _down(copy._down)
 {}
 
+Shape	&Shape::operator=(const Shape& other)
+{
+	if (this != &other)
+	{
+		_up = other._up;
+		_left = other._left;
+		_front = other._front;
+		_right = other._right;
+		_back = other._back;
+		_down = other._down;
+	}
+	return *this;
+}
+
 Shape::~Shape()
 {}
 

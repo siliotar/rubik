@@ -1,6 +1,7 @@
 #include "Visualizer.hpp"
 
-Visualizer::Visualizer(int size): _size(size), _rotAngle(0.0f), _command(0)
+Visualizer::Visualizer(int size): _size(size), _rotAngle(0.0f), _screenWidth(1366), \
+_screenHeight(768), _freeMode(0), _solve(false), _shuffle(false), _speed(1.0f)
 {
 	if (!glfwInit())
 	{
@@ -21,7 +22,7 @@ Visualizer::Visualizer(int size): _size(size), _rotAngle(0.0f), _command(0)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	_window = glfwCreateWindow(1366, 768, "scop", 0, 0);
+	_window = glfwCreateWindow(_screenWidth, _screenHeight, "scop", 0, 0);
 	if (!_window)
 	{
 		glfwTerminate();
@@ -288,21 +289,43 @@ void	Visualizer::_drawScene()
 	model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4	view = glm::mat4(1.0f);
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -7.0f));
-	glm::mat4	proj = glm::perspective(glm::radians(45.0f), 1366.0f/768.0f, 0.1f, 100.0f);
+	glm::mat4	proj = glm::perspective(glm::radians(45.0f), (float)_screenWidth / _screenHeight, 0.1f, 100.0f);
 	glUniformMatrix4fv(_model, 1, GL_FALSE, (const GLfloat*)glm::value_ptr(model));
 	glUniformMatrix4fv(_view, 1, GL_FALSE, (const GLfloat*)glm::value_ptr(view));
 	glUniformMatrix4fv(_projection, 1, GL_FALSE, (const GLfloat*)glm::value_ptr(proj));
 
-	_rotAngle += M_PI_2 * _deltaTime;
+	if (_commands->fullSize() > 0)
+		_rotAngle += _speed * M_PI * _deltaTime;
 	if (_rotAngle >= M_PI_2)
 	{
 		_rotAngle = 0.0f;
-		if (_command < _commands->fillSize())
-		{
-			// std::cout << (*_commands)[_command] << std::endl;
-			_cube->exec((*_commands)[_command]);
-			++_command;
-		}
+		if (_commands->fullSize() > 0)
+			_cube->exec(_commands->popFront());
+	}
+	if (!_freeMode && _commands->fullSize() == 0)
+	{
+		_commands->clear();
+		_freeMode = true;
+	}
+	if (_freeMode && _solve && _commands->fullSize() == 0)
+	{
+		if (static_cast<Cube3*>(_cube))
+			*_commands = Cube3(*static_cast<Cube3*>(_cube)).solve();
+		else
+			*_commands = Cube(*_cube).solve();
+		_solve = false;
+		_freeMode = false;
+	}
+	if (_freeMode && _shuffle && _commands->fullSize() == 0)
+	{
+		std::string	shuf;
+		if (static_cast<Cube3*>(_cube))
+			shuf = (Cube3(*static_cast<Cube3*>(_cube))).shuffle(20);
+		else
+			shuf = Cube(*_cube).shuffle(20);
+		_commands->pushLine(shuf);
+		_shuffle = false;
+		_freeMode = false;
 	}
 	for (int z = 0; z < _size * 24; z += 24)
 		for (int y = 0; y < _size * 24; y += 24)
@@ -311,42 +334,45 @@ void	Visualizer::_drawScene()
 				GLintptr offset = x + y * _size + z * _size * _size;
 				offset *= sizeof(unsigned int);
 				glm::mat4	rotmat = glm::mat3(1.0f);
-				if ((*_commands)[_command] == "R" && x == (_size - 1) * 24)
-					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
-				else if ((*_commands)[_command] == "R'" && x == (_size - 1) * 24)
-					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
-				else if ((*_commands)[_command] == "L" && x == 0)
-					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
-				else if ((*_commands)[_command] == "L'" && x == 0)
-					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
-				else if ((*_commands)[_command] == "U" && y == (_size - 1) * 24)
-					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-				else if ((*_commands)[_command] == "U'" && y == (_size - 1) * 24)
-					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-				else if ((*_commands)[_command] == "D" && y == 0)
-					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-				else if ((*_commands)[_command] == "D'" && y == 0)
-					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-				else if ((*_commands)[_command] == "F" && z == (_size - 1) * 24)
-					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
-				else if ((*_commands)[_command] == "F'" && z == (_size - 1) * 24)
-					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
-				else if ((*_commands)[_command] == "B" && z == 0)
-					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
-				else if ((*_commands)[_command] == "B'" && z == 0)
-					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
-				else if ((*_commands)[_command] == "x")
-					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
-				else if ((*_commands)[_command] == "x'")
-					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
-				else if ((*_commands)[_command] == "y")
-					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-				else if ((*_commands)[_command] == "y'")
-					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-				else if ((*_commands)[_command] == "z")
-					rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
-				else if ((*_commands)[_command] == "z'")
-					rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+				if (_commands->fullSize() > 0)
+				{
+					if ((*_commands)[0] == "R" && x == (_size - 1) * 24)
+						rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+					else if ((*_commands)[0] == "R'" && x == (_size - 1) * 24)
+						rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+					else if ((*_commands)[0] == "L" && x == 0)
+						rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+					else if ((*_commands)[0] == "L'" && x == 0)
+						rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+					else if ((*_commands)[0] == "U" && y == (_size - 1) * 24)
+						rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+					else if ((*_commands)[0] == "U'" && y == (_size - 1) * 24)
+						rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+					else if ((*_commands)[0] == "D" && y == 0)
+						rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+					else if ((*_commands)[0] == "D'" && y == 0)
+						rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+					else if ((*_commands)[0] == "F" && z == (_size - 1) * 24)
+						rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+					else if ((*_commands)[0] == "F'" && z == (_size - 1) * 24)
+						rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+					else if ((*_commands)[0] == "B" && z == 0)
+						rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+					else if ((*_commands)[0] == "B'" && z == 0)
+						rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+					else if ((*_commands)[0] == "x")
+						rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+					else if ((*_commands)[0] == "x'")
+						rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+					else if ((*_commands)[0] == "y")
+						rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+					else if ((*_commands)[0] == "y'")
+						rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+					else if ((*_commands)[0] == "z")
+						rotmat = glm::rotate(rotmat, -_rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+					else if ((*_commands)[0] == "z'")
+						rotmat = glm::rotate(rotmat, _rotAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+				}
 
 				glUniformMatrix3fv(_rotmat, 1, GL_FALSE, (const GLfloat*)glm::value_ptr(glm::mat3(rotmat)));
 				for (int i = 0; i < 6; ++i)
@@ -358,22 +384,105 @@ void	Visualizer::_drawScene()
 			}
 }
 
+void	Visualizer::_processInput()
+{
+	static bool keyPressed = false;
+	static int key;
+	if (glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(_window, 1);
+	if (_freeMode && !keyPressed)
+	{
+		std::string	command = "";
+		if (glfwGetKey(_window, GLFW_KEY_R) == GLFW_PRESS)
+		{
+			command = "R";
+			keyPressed = true;
+			key = GLFW_KEY_R;
+		}
+		else if (glfwGetKey(_window, GLFW_KEY_L) == GLFW_PRESS)
+		{
+			command = "L";
+			keyPressed = true;
+			key = GLFW_KEY_L;
+		}
+		else if (glfwGetKey(_window, GLFW_KEY_U) == GLFW_PRESS)
+		{
+			command = "U";
+			keyPressed = true;
+			key = GLFW_KEY_U;
+		}
+		else if (glfwGetKey(_window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			command = "D";
+			keyPressed = true;
+			key = GLFW_KEY_D;
+		}
+		else if (glfwGetKey(_window, GLFW_KEY_F) == GLFW_PRESS)
+		{
+			command = "F";
+			keyPressed = true;
+			key = GLFW_KEY_F;
+		}
+		else if (glfwGetKey(_window, GLFW_KEY_B) == GLFW_PRESS)
+		{
+			command = "B";
+			keyPressed = true;
+			key = GLFW_KEY_B;
+		}
+		else if (glfwGetKey(_window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			if (glfwGetKey(_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(_window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+				_shuffle = true;
+			else
+				_solve = true;
+			keyPressed = true;
+			key = GLFW_KEY_S;
+		}
+		if (glfwGetKey(_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(_window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)
+			command += "'";
+		if (command.size() > 0 && command[0] != '\'')
+			_commands->push(command, false);
+	}
+	if (glfwGetKey(_window, key) == GLFW_RELEASE)
+		keyPressed = false;
+	if (glfwGetKey(_window, GLFW_KEY_UP) == GLFW_PRESS)
+		_speed += _deltaTime;
+	if (glfwGetKey(_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		_speed -= _deltaTime;
+	if (_speed < 0.5f)
+		_speed = 0.5f;
+	else if (_speed > 16.0f)
+		_speed = 16.0f;
+}
+
+void	Visualizer::_checkResize()
+{
+	int	w, h;
+
+	w = _screenWidth;
+	h = _screenHeight;
+	glfwGetWindowSize(_window, &_screenWidth, &_screenHeight);
+	if (w != _screenWidth || h != _screenHeight)
+	{
+		glfwGetFramebufferSize(_window, &w, &h);
+		glViewport(0, 0, w, h);
+	}
+}
+
 void	Visualizer::visualize(Cube *cube, Commands &commands)
 {
 	_cube = cube;
 	_commands = &commands;
 	while (!glfwWindowShouldClose(_window))
 	{
-		// checkResize(scop);
+		_checkResize();
 		_calculateDeltaTime();
 		glClearColor(0.52f, 0.52f, 0.52f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// processInput(scop);
+		_processInput();
 
 		_drawScene();
-
-		// drawInterface(scop);
 
 		glfwSwapBuffers(_window);
 		glfwPollEvents();

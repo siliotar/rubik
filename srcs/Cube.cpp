@@ -2,9 +2,10 @@
 
 Cube::Cube(int size) : _size(size)
 {
-	if (size < 2)
+	_solver = new Solver();
+	if (_size < 2)
 		throw SizeTooLow();
-	if (size > 10)
+	if (_size > 10)
 		throw SizeTooHigh();
 	_shapes = new Shape *[_size * _size * _size];
 	for (int z = 0; z < _size; ++z)
@@ -13,11 +14,28 @@ Cube::Cube(int size) : _size(size)
 				_shapes[x + y * _size + z * _size * _size] = new Shape(x, y, z, _size);
 }
 
+Cube::Cube(const Cube& copy) : _size(copy._size)
+{
+	_solver = new Solver();
+	_shapes = new Shape *[_size * _size * _size];
+	for (int i = 0; i < _size * _size * _size; ++i)
+		_shapes[i] = new Shape(*copy._shapes[i]);
+}
+
+Cube	&Cube::operator=(const Cube& other)
+{
+	if (this != &other)
+		for (int i = 0; i < _size * _size * _size; ++i)
+			*_shapes[i] = *other._shapes[i];
+	return *this;
+}
+
 Cube::~Cube()
 {
 	for (int i = 0; i < _size * _size * _size; ++i)
 		delete _shapes[i];
 	delete[] _shapes;
+	delete _solver;
 }
 
 void	Cube::rotateFace(int x, int y, int z, mat3 rotmat, Rotation rot)
@@ -233,4 +251,9 @@ bool	Cube::assembled() const
 		}
 	}
 	return true;
+}
+
+Commands	&Cube::solve(bool print)
+{
+	return _solver->solve(this, print);
 }

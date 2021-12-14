@@ -2,6 +2,16 @@
 
 Cube3::Cube3() : Cube(3)
 {
+	_initMethods();
+}
+
+Cube3::Cube3(const Cube3& copy) : Cube(copy)
+{
+	_initMethods();
+}
+
+void	Cube3::_initMethods()
+{
 	_shuffleMethods["F"] = &Cube3::F;
 	_shuffleMethods["F\'"] = &Cube3::rF;
 	_shuffleMethods["R"] = &Cube3::R;
@@ -32,6 +42,14 @@ Cube3::Cube3() : Cube(3)
 	_methods["y\'"] = &Cube3::ry;
 	_methods["z"] = &Cube3::z;
 	_methods["z\'"] = &Cube3::rz;
+}
+
+Cube3	&Cube3::operator=(const Cube3& other)
+{
+	if (this != &other)
+		for (int i = 0; i < _size * _size * _size; ++i)
+			*_shapes[i] = *other._shapes[i];
+	return *this;
 }
 
 Cube3::~Cube3() {}

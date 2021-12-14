@@ -13,6 +13,7 @@ class Shape
 		Color	_down;
 		Shape(int x, int y, int z, int size);
 		Shape(const Shape &copy);
+		Shape	&operator=(const Shape& other);
 		virtual ~Shape();
 		void	R();
 		void	L();

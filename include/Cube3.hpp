@@ -10,12 +10,13 @@ class Cube3 : public Cube
 {
 	private:
 		typedef std::string (Cube3::*Method)();
-		Cube3(const Cube3 &copy);
-		Cube3	&operator=(const Cube3 &other);
 		std::map<std::string, Method>	_methods;
 		std::map<std::string, Method>	_shuffleMethods;
+		void	_initMethods();
 	public:
 		Cube3();
+		Cube3(const Cube3 &copy);
+		Cube3	&operator=(const Cube3 &other);
 		virtual ~Cube3();
 		std::string	F();
 		std::string	rF();
