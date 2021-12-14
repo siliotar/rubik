@@ -135,7 +135,7 @@ const char* Cube::SizeTooLow::what() const throw () { return "Size too low"; }
 Cube::SizeTooLow::~SizeTooLow() throw () {}
 
 Cube::UnknownCommand::UnknownCommand() {}
-const char* Cube::UnknownCommand::what() const throw () { return "Unknowsn command"; }
+const char* Cube::UnknownCommand::what() const throw () { return "Unknown command"; }
 Cube::UnknownCommand::~UnknownCommand() throw () {}
 
 std::string	Cube::shuffle(size_t count)
