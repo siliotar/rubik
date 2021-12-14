@@ -6,6 +6,12 @@
 #include <sstream>
 #include "vec3.hpp"
 
+#define COMMANDLINE		0b00001
+#define SHUFFLE			0b00010
+#define VISUALIZE		0b00100
+#define BEGINNERALGO	0b01000
+#define TEST			0b10000
+
 template <typename T>
 void	swap(T &a, T &b)
 {

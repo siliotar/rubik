@@ -27,7 +27,6 @@ class Solver
 		size_t		_count;
 
 		Solver(const Solver& copy);
-		Solver	&operator=(const Solver& other);
 
 		void	_solve3beginner(Cube3 *cube, bool print);
 		void	_solve3s1(Cube3 *cube);
@@ -55,9 +54,10 @@ class Solver
 		void	_solve3advanceds4(Cube3 *cube);
 		void	_useFormula(Cube3 *cube, const std::string &formula, int idx = 2);
 	public:
+		Solver	&operator=(const Solver& other);
 		Solver();
 		virtual ~Solver();
-		Commands	&solve(Cube *cube, bool print = true);
+		Commands	&solve(Cube *cube, bool print = true, bool beginner = false);
 };
 
 #include "Cube.hpp"

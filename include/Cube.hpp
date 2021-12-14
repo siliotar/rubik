@@ -98,7 +98,7 @@ class Cube
 		std::string	resetTransform();
 		Shape		**getShapes() const;
 		bool		assembled() const;
-		Commands	&solve(bool print = true);
+		Commands	&solve(bool print = true, bool beginner = false);
 };
 
 #include "Shape.hpp"

@@ -1,7 +1,7 @@
 #include "Visualizer.hpp"
 
-Visualizer::Visualizer(int size): _size(size), _rotAngle(0.0f), _screenWidth(1366), \
-_screenHeight(768), _freeMode(0), _solve(false), _shuffle(false), _speed(1.0f)
+Visualizer::Visualizer(int size, bool solve, bool beginner): _size(size), _rotAngle(0.0f), _screenWidth(1366), \
+_screenHeight(768), _freeMode(0), _solve(solve), _shuffle(false), _speed(1.0f), _beginner(beginner)
 {
 	if (!glfwInit())
 	{
@@ -22,7 +22,7 @@ _screenHeight(768), _freeMode(0), _solve(false), _shuffle(false), _speed(1.0f)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	_window = glfwCreateWindow(_screenWidth, _screenHeight, "scop", 0, 0);
+	_window = glfwCreateWindow(_screenWidth, _screenHeight, "rubik", 0, 0);
 	if (!_window)
 	{
 		glfwTerminate();
@@ -203,7 +203,7 @@ unsigned int	Visualizer::_compileShader(unsigned int type, const std::string &so
 		glGetShaderInfoLog(id, length, &length, message);
 		printf("Failed to compile shader\n%s\n", message);
 		glDeleteShader(id);
-		return 0;
+		exit(EXIT_FAILURE);
 	}
 	return id;
 }
@@ -310,9 +310,9 @@ void	Visualizer::_drawScene()
 	if (_freeMode && _solve && _commands->fullSize() == 0)
 	{
 		if (static_cast<Cube3*>(_cube))
-			*_commands = Cube3(*static_cast<Cube3*>(_cube)).solve();
+			*_commands = Cube3(*static_cast<Cube3*>(_cube)).solve(true, _beginner);
 		else
-			*_commands = Cube(*_cube).solve();
+			*_commands = Cube(*_cube).solve(true, _beginner);
 		_solve = false;
 		_freeMode = false;
 	}

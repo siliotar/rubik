@@ -20,13 +20,17 @@ Cube::Cube(const Cube& copy) : _size(copy._size)
 	_shapes = new Shape *[_size * _size * _size];
 	for (int i = 0; i < _size * _size * _size; ++i)
 		_shapes[i] = new Shape(*copy._shapes[i]);
+	*_solver = *copy._solver;
 }
 
 Cube	&Cube::operator=(const Cube& other)
 {
 	if (this != &other)
+	{
 		for (int i = 0; i < _size * _size * _size; ++i)
 			*_shapes[i] = *other._shapes[i];
+		*_solver = *other._solver;
+	}
 	return *this;
 }
 
@@ -253,7 +257,7 @@ bool	Cube::assembled() const
 	return true;
 }
 
-Commands	&Cube::solve(bool print)
+Commands	&Cube::solve(bool print, bool beginner)
 {
-	return _solver->solve(this, print);
+	return _solver->solve(this, print, beginner);
 }

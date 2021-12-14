@@ -11,6 +11,21 @@ _s7(0),
 _count(0)
 {}
 
+Solver	&Solver::operator=(const Solver& other)
+{
+	if (this != &other)
+	{
+		_s1 = other._s1;
+		_s2 = other._s2;
+		_s3 = other._s3;
+		_s4 = other._s4;
+		_s5 = other._s5;
+		_s6 = other._s6;
+		_s7 = other._s7;
+	}
+	return *this;
+}
+
 Solver::~Solver() {}
 
 void	Solver::_spinForNonWhite(Cube3 *cube, int pos)
@@ -1617,10 +1632,15 @@ void	Solver::_solve3advanced(Cube3 *cube, bool print)
 	}
 }
 
-Commands	&Solver::solve(Cube *cube, bool print)
+Commands	&Solver::solve(Cube *cube, bool print, bool beginner)
 {
 	_commands.clear();
 	if (dynamic_cast<Cube3*>(cube))
-		_solve3advanced(dynamic_cast<Cube3*>(cube), print);
+	{
+		if (beginner)
+			_solve3beginner(dynamic_cast<Cube3*>(cube), print);
+		else
+			_solve3advanced(dynamic_cast<Cube3*>(cube), print);
+	}
 	return _commands;
 }
