@@ -36,27 +36,17 @@ class Cube
 		template <typename Child>
 		std::string	_shuffle(Child &c, std::map<std::string, std::string (Child::*)()> methods, size_t count)
 		{
-			std::stringstream	ss;
 			typedef typename std::map<std::string, std::string (Child::*)()>::iterator	iterator;
-			std::string	prevMove = "";
-			for (size_t i = 0; i < count; ++i)
+			Commands	cmd;
+			while (cmd.size() < count)
 			{
 				int	move = std::rand() % methods.size();
 				iterator	it = methods.begin();
 				for (int j = 0; j < move; ++j)
 					++it;
-				if (it->first[0] == prevMove[0] && it->first[1] != prevMove[1])
-				{
-					--i;
-					continue;
-				}
-				(c.*(it->second))();
-				prevMove = it->first;
-				if (ss.str().size() > 0)
-					ss << " ";
-				ss << it->first;
+				cmd.push((c.*(it->second))());
 			}
-			return ss.str();
+			return cmd.str();
 		}
 	public:
 		Cube(int size);

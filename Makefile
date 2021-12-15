@@ -32,9 +32,9 @@ DEP = $(addprefix $(DEPDIR), $(SOURCEFILES:.cpp=.d)) $(DEPDIR)glad.d
 INCLUDES = -I $(INCLUDEDIR) -I libs/glfw/include -I libs/glad/include -I libs/glm/glm
 
 ifeq ($(UNAME_S),Darwin)
-LIBS = -L ./libs/glfw-3.3.5/src/ -lglfw3 -lpthread -ldl -lm -L ./libs/
+LIBS = -L ./libs/glfw/src/ -lglfw3 -lpthread -ldl -lm -L ./libs/
 else
-LIBS = -L ./libs/glfw-3.3.5/src/ -lglfw3 -lpthread -ldl -lm -lGL -lX11 -L ./libs/
+LIBS = -L ./libs/glfw/src/ -lglfw3 -lpthread -ldl -lm -lGL -lX11 -L ./libs/
 endif
 
 all: $(NAME)
